@@ -3,3 +3,4 @@ import tensorflow_datasets as tfds
 
 def load_data():
     content_images = tfds.load("clic")
+    return content_images
