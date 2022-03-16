@@ -8,3 +8,5 @@ ratings_small = create_small_practice_dataset(ratings)
 #%%
 print('---------- data exploration -------------')
 data_exploration(ratings_small)
+
+
