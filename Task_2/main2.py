@@ -1,4 +1,6 @@
 from Task_2.data_exploration import *
+from Task_2.preprocessing import *
+from Task_2.ncf import *
 
 #%%
 print('--------- load data ----------')
@@ -11,3 +13,4 @@ data_exploration(ratings_small)
 
 #%%
 print('---------- pre-processing -----------')
+train, test = train_test_split(ratings_small)
