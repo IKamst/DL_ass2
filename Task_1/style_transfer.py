@@ -1,6 +1,7 @@
 import PIL
 import numpy as np
 import tensorflow as tf
+import IPython.display as display
 
 
 # Make a model that returns the style and content tensors.
@@ -51,7 +52,7 @@ def make_vgg_layers(layer_names):
     """ Creates a vgg model that returns a list of intermediate output values."""
     # Load our model. Load pretrained VGG, trained on imagenet data
     # TODO change weight initialisation
-    vgg = tf.keras.applications.VGG19(include_top=False, weights='imagenet')
+    vgg = tf.keras.applications.VGG19(include_top=False, weights=None)
     vgg.trainable = False
 
     outputs = [vgg.get_layer(name).output for name in layer_names]
@@ -104,6 +105,7 @@ def train_step(image, extractor, opt, num_style_layers, num_content_layers, styl
 
 # Create an image from the tensor.
 def tensor_to_image(tensor):
+    print(tensor)
     tensor = tensor * 255
     tensor = np.array(tensor, dtype=np.uint8)
     if np.ndim(tensor) > 3:
@@ -111,6 +113,26 @@ def tensor_to_image(tensor):
         tensor = tensor[0]
     return PIL.Image.fromarray(tensor)
 
+def imshow(image, title=None):
+    if len(image.shape) > 3:
+        image = tf.squeeze(image, axis=0)
+
+    plt.imshow(image)
+    if title:
+        plt.title(title)
+    return
+
+def train_style_transfer(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets, epochs, steps_per_epoch):
+    step = 0
+    for n in range(epochs):
+        for m in range(steps_per_epoch):
+            step += 1
+            train_step(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets)
+            print(".", end='', flush=True)
+        display.clear_output(wait=True)
+        display.display(tensor_to_image(image))
+        tensor_to_image(image).show()
+        print("Train step: {}".format(step))
 
 def main_style_transfer(style_image, content_image):
     content_layers, style_layers, num_content_layers, num_style_layers = create_content_style_layers()
@@ -122,10 +144,12 @@ def main_style_transfer(style_image, content_image):
     style_targets = extractor(style_image)['style']
     content_targets = extractor(content_image)['content']
     image = tf.Variable(content_image)
-    tensor_to_image(image)
+
     opt = tf.optimizers.Adam(learning_rate=0.02, beta_1=0.99, epsilon=1e-1)
-    train_step(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets)
-    train_step(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets)
-    train_step(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets)
-    tensor_to_image(image)
+
+    epochs = 10
+    steps_per_epoch = 10
+
+    train_style_transfer(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets, epochs, steps_per_epoch)
+
     return

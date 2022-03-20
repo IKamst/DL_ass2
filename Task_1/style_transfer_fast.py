@@ -44,6 +44,7 @@ def imshow(image, title=None):
     return
 
 def tensor_to_image(tensor):
+    print(tensor)
     tensor = tensor * 255
     tensor = np.array(tensor, dtype=np.uint8)
     if np.ndim(tensor) > 3:
@@ -61,6 +62,7 @@ def fast_transfer_style():
     style_image = load_img(style_path)
     hub_model = hub.load('https://tfhub.dev/google/magenta/arbitrary-image-stylization-v1-256/2')
     stylized_image = hub_model(tf.constant(content_image), tf.constant(style_image))[0]
-    tensor_to_image(stylized_image)
+    image = tensor_to_image(stylized_image)
+    image.show()
     return
 
