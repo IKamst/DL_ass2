@@ -44,7 +44,6 @@ def imshow(image, title=None):
     return
 
 def tensor_to_image(tensor):
-    print(tensor)
     tensor = tensor * 255
     tensor = np.array(tensor, dtype=np.uint8)
     if np.ndim(tensor) > 3:

@@ -52,7 +52,7 @@ def make_vgg_layers(layer_names):
     """ Creates a vgg model that returns a list of intermediate output values."""
     # Load our model. Load pretrained VGG, trained on imagenet data
     # TODO change weight initialisation
-    vgg = tf.keras.applications.VGG19(include_top=False, weights=None)
+    vgg = tf.keras.applications.VGG19(include_top=False, weights='imagenet')
     vgg.trainable = False
 
     outputs = [vgg.get_layer(name).output for name in layer_names]
@@ -75,8 +75,8 @@ def clip_0_1(image):
 
 
 def style_content_loss(outputs, num_style_layers, num_content_layers, style_targets, content_targets):
-    style_weight = 1e-2
-    content_weight = 1e4
+    style_weight = 1e4
+    content_weight = 1e-2
     style_outputs = outputs['style']
     content_outputs = outputs['content']
     style_loss = tf.add_n([tf.reduce_mean((style_outputs[name]-style_targets[name])**2)
@@ -86,12 +86,17 @@ def style_content_loss(outputs, num_style_layers, num_content_layers, style_targ
     content_loss = tf.add_n([tf.reduce_mean((content_outputs[name]-content_targets[name])**2)
                              for name in content_outputs.keys()])
     content_loss *= content_weight / num_content_layers
+    print("STYLE LOSS")
+    print(style_loss)
+    print("CONTENT LOSS")
+    print(content_loss)
     loss = style_loss + content_loss
     return loss
 
 
 # Update the image
-@tf.function()
+# TODO check if tf.function() is necessary in any way?
+# @tf.function()
 def train_step(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets):
     with tf.GradientTape() as tape:
         outputs = extractor(image)
@@ -105,7 +110,6 @@ def train_step(image, extractor, opt, num_style_layers, num_content_layers, styl
 
 # Create an image from the tensor.
 def tensor_to_image(tensor):
-    print(tensor)
     tensor = tensor * 255
     tensor = np.array(tensor, dtype=np.uint8)
     if np.ndim(tensor) > 3:
@@ -129,8 +133,6 @@ def train_style_transfer(image, extractor, opt, num_style_layers, num_content_la
             step += 1
             train_step(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets)
             print(".", end='', flush=True)
-        display.clear_output(wait=True)
-        display.display(tensor_to_image(image))
         tensor_to_image(image).show()
         print("Train step: {}".format(step))
 
