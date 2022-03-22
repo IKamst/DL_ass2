@@ -13,15 +13,20 @@ class StyleContentModel(tf.keras.models.Model):
         self.style_layers = style_layers
         self.content_layers = content_layers
         self.num_style_layers = len(style_layers)
-        self.vgg.trainable = False
+        self.vgg.trainable = True
 
     def call(self, inputs):
         "Expects float input in [0,1]"
         inputs = inputs * 255.0
         preprocessed_input = tf.keras.applications.vgg19.preprocess_input(inputs)
         outputs = self.vgg(preprocessed_input)
+        # Get the weights
         style_outputs, content_outputs = (outputs[:self.num_style_layers],
                                           outputs[self.num_style_layers:])
+
+        print("BEGIN")
+        print(style_outputs)
+        print("END")
 
         style_outputs = [gram_matrix(style_output) for style_output in style_outputs]
 
@@ -47,13 +52,12 @@ def create_content_style_layers():
     num_style_layers = len(style_layers)
     return content_layers, style_layers, num_content_layers, num_style_layers
 
-
 def make_vgg_layers(layer_names):
     """ Creates a vgg model that returns a list of intermediate output values."""
     # Load our model. Load pretrained VGG, trained on imagenet data
     # TODO change weight initialisation
-    vgg = tf.keras.applications.VGG19(include_top=False, weights='imagenet')
-    vgg.trainable = False
+    vgg = tf.keras.applications.VGG19(include_top=False, weights=None)
+    vgg.trainable = True
 
     outputs = [vgg.get_layer(name).output for name in layer_names]
 
@@ -86,10 +90,10 @@ def style_content_loss(outputs, num_style_layers, num_content_layers, style_targ
     content_loss = tf.add_n([tf.reduce_mean((content_outputs[name]-content_targets[name])**2)
                              for name in content_outputs.keys()])
     content_loss *= content_weight / num_content_layers
-    print("STYLE LOSS")
-    print(style_loss)
-    print("CONTENT LOSS")
-    print(content_loss)
+    # print("STYLE LOSS")
+    # print(style_loss)
+    # print("CONTENT LOSS")
+    # print(content_loss)
     loss = style_loss + content_loss
     return loss
 
