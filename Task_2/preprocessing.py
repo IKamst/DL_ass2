@@ -52,7 +52,10 @@ def add_negatives(train, ratings):
 
     return users, movies, labels
 
-# TODO:
+
+
+
+
 # - one-hot-encode user id's?
 # - transform to implicit data
 # - train-test split
