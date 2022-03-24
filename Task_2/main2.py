@@ -35,8 +35,9 @@ train, test = train_test_split(ratings_small)
 train = transform_to_implicit(train)
 train_users, train_movies, train_labels = add_negatives(train, ratings_small)
 train_data = pd.DataFrame(list(zip(train_users, train_movies, train_labels)),
-               columns =['userID', 'movieID', 'Label'])  # TODO: dit gaat niet goed --> alle movieIDs zijn hetzelfde per user?
-# print(train_data)
+               columns =['userID', 'movieID', 'Label'])
+
+print(train_data)
 
 data = reindex_ID(train_data) # TODO: do same transformation for test data
 

@@ -26,7 +26,7 @@ def transform_to_implicit(train):
 
 
 def add_negatives(train, ratings):
-    num_negatives = 5  # TODO: now ratio 4:1, but maybe adjust
+    num_negatives = 5  # TODO: now ratio 5:1, but maybe adjust
     all_movies = ratings['movieId'].unique()  # get all different movie Ids from the whole data set
     user_movie_set = set(zip(train['userId'], train['movieId']))  # make set with user-movie pairs
 
@@ -41,13 +41,14 @@ def add_negatives(train, ratings):
         movies.append(movie)
         labels.append(1)  # because user interacted with this model
 
+
         # add negative examples
         for _ in range(num_negatives):
             negative_movie = np.random.choice(all_movies)
             while (user, negative_movie) in user_movie_set:        # if user already interacted with picked movie
                 negative_movie = np.random.choice(all_movies)   # pick other movie
             users.append(user)
-            movies.append(movie)
+            movies.append(negative_movie)
             labels.append(0)        # because negative example
 
     return users, movies, labels
