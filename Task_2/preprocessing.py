@@ -53,9 +53,18 @@ def add_negatives(train, ratings):
     return users, movies, labels
 
 
+def reindex_ID(data):
+    unique_users = data['userID'].unique()
+    user_to_id = {user: id for id, user in enumerate(unique_users)}
 
+    unique_movies = data['movieID'].unique()
+    movie_to_id = {movie: id for id, movie in enumerate(unique_movies)}
+
+    data['userID'] = data['userID'].apply(lambda x: user_to_id[x])
+    data['movieID'] = data['movieID'].apply(lambda x: movie_to_id[x])
+
+    return data
 
 
 # - one-hot-encode user id's?
-# - transform to implicit data
-# - train-test split
+# - transform to implicit data --> TODO: dit is gedaan toch?

@@ -12,7 +12,7 @@ def load_data():
 def create_small_practice_dataset(ratings):
     selected_ids = np.random.choice(ratings['userId'].unique(), size=int(len(ratings['userId'].unique()) * 0.002))
     ratings_small = ratings.loc[ratings['userId'].isin(selected_ids)]
-    print(ratings_small)
+    # print(ratings_small)
     return ratings_small
 
 
