@@ -13,7 +13,7 @@ class StyleContentModel(tf.keras.models.Model):
         self.style_layers = style_layers
         self.content_layers = content_layers
         self.num_style_layers = len(style_layers)
-        self.vgg.trainable = True
+        self.vgg.trainable = False
 
     def call(self, inputs):
         "Expects float input in [0,1]"
@@ -56,8 +56,8 @@ def make_vgg_layers(layer_names):
     """ Creates a vgg model that returns a list of intermediate output values."""
     # Load our model. Load pretrained VGG, trained on imagenet data
     # TODO change weight initialisation
-    vgg = tf.keras.applications.VGG19(include_top=False, weights=None)
-    vgg.trainable = True
+    vgg = tf.keras.applications.VGG19(include_top=False, weights='imagenet')
+    vgg.trainable = False
 
     outputs = [vgg.get_layer(name).output for name in layer_names]
 
