@@ -1,12 +1,17 @@
+# Original style transfer approach based on Gatys et al. 'A Neural Algorithm of Artistic Style'
+# Based on the explanation as given in https://www.tensorflow.org/tutorials/generative/style_transfer
+
+# Import and configure modules
 import PIL
 import numpy as np
 import tensorflow as tf
+from matplotlib import pyplot as plt
 import IPython.display as display
 
 
 # Make a model that returns the style and content tensors.
-# TODO understand this. Move it to its own file?
 class StyleContentModel(tf.keras.models.Model):
+    # Initialise the model.
     def __init__(self, style_layers, content_layers):
         super(StyleContentModel, self).__init__()
         self.vgg = make_vgg_layers(style_layers + content_layers)
@@ -15,21 +20,22 @@ class StyleContentModel(tf.keras.models.Model):
         self.num_style_layers = len(style_layers)
         self.vgg.trainable = False
 
+    # This model returns the Gram matrix of the style_layers and content of the content_layers.
     def call(self, inputs):
-        "Expects float input in [0,1]"
+        # Get correctly formatted and preprocessed inputs.
         inputs = inputs * 255.0
         preprocessed_input = tf.keras.applications.vgg19.preprocess_input(inputs)
+        # Get the output by applying vgg19 to the input.
         outputs = self.vgg(preprocessed_input)
-        # Get the weights
+        # Get the weights of the style and content layers.
         style_outputs, content_outputs = (outputs[:self.num_style_layers],
                                           outputs[self.num_style_layers:])
 
-        print("BEGIN")
-        print(style_outputs)
-        print("END")
-
+        # The style output is determined by applying the Gram matrix to the weights of the style layers.
         style_outputs = [gram_matrix(style_output) for style_output in style_outputs]
 
+        # Make content and style dictionaries.
+        # TODO determine what exactly happens here.
         content_dict = {content_name: value for content_name, value
                         in zip(self.content_layers, content_outputs)}
 
@@ -39,6 +45,8 @@ class StyleContentModel(tf.keras.models.Model):
         return {'content': content_dict, 'style': style_dict}
 
 
+# Create the content and style layers using the approach defined in the paper by Gatys et al.
+# The intermediate layers of the VGG19 network represent the style and content.
 def create_content_style_layers():
     content_layers = ['block5_conv2']
 
@@ -52,11 +60,13 @@ def create_content_style_layers():
     num_style_layers = len(style_layers)
     return content_layers, style_layers, num_content_layers, num_style_layers
 
+
+# Build a VGG19 model and return a list of intermediate layer outputs.
 def make_vgg_layers(layer_names):
-    """ Creates a vgg model that returns a list of intermediate output values."""
-    # Load our model. Load pretrained VGG, trained on imagenet data
-    # TODO change weight initialisation
+    # If weights is set to 'imagenet', then a pretrained VGG is loaded.
+    # If weights is set to NONE, then random weights are used.
     vgg = tf.keras.applications.VGG19(include_top=False, weights='imagenet')
+    # Setting trainable to True allows the model to learn and change weights.
     vgg.trainable = False
 
     outputs = [vgg.get_layer(name).output for name in layer_names]
@@ -90,10 +100,6 @@ def style_content_loss(outputs, num_style_layers, num_content_layers, style_targ
     content_loss = tf.add_n([tf.reduce_mean((content_outputs[name]-content_targets[name])**2)
                              for name in content_outputs.keys()])
     content_loss *= content_weight / num_content_layers
-    # print("STYLE LOSS")
-    # print(style_loss)
-    # print("CONTENT LOSS")
-    # print(content_loss)
     loss = style_loss + content_loss
     return loss
 
@@ -121,6 +127,7 @@ def tensor_to_image(tensor):
         tensor = tensor[0]
     return PIL.Image.fromarray(tensor)
 
+
 def imshow(image, title=None):
     if len(image.shape) > 3:
         image = tf.squeeze(image, axis=0)
@@ -129,6 +136,7 @@ def imshow(image, title=None):
     if title:
         plt.title(title)
     return
+
 
 def train_style_transfer(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets, epochs, steps_per_epoch):
     step = 0
@@ -140,13 +148,13 @@ def train_style_transfer(image, extractor, opt, num_style_layers, num_content_la
         tensor_to_image(image).show()
         print("Train step: {}".format(step))
 
+
+# Main function. This calls all other functions that are used during the style transfer process.
 def main_style_transfer(style_image, content_image):
     content_layers, style_layers, num_content_layers, num_style_layers = create_content_style_layers()
-    # Create the model
-    style_extractor = make_vgg_layers(style_layers)
-    style_outputs = style_extractor(style_image * 255)
+    # Create the model.
     extractor = StyleContentModel(style_layers, content_layers)
-    results = extractor(tf.constant(content_image))
+    # Set style and content targets.
     style_targets = extractor(style_image)['style']
     content_targets = extractor(content_image)['content']
     image = tf.Variable(content_image)
@@ -157,5 +165,4 @@ def main_style_transfer(style_image, content_image):
     steps_per_epoch = 10
 
     train_style_transfer(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets, epochs, steps_per_epoch)
-
     return
