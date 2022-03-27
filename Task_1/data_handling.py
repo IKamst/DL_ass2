@@ -1,5 +1,8 @@
+import sys
+
 import tensorflow as tf
 import tensorflow_datasets as tfds
+from sklearn.model_selection import train_test_split
 
 
 def load_img(path_to_img):
@@ -18,7 +21,6 @@ def load_img(path_to_img):
     img = img[tf.newaxis, :]
     return img
 
-
 def load_data():
     # content_images = tfds.load("clic")
     content_path = tf.keras.utils.get_file('YellowLabradorLooking_new.jpg',
@@ -28,3 +30,11 @@ def load_data():
     content_image = load_img(content_path)
     style_image = load_img(style_path)
     return content_image, style_image
+
+def process_data(images, labels):
+    if len(images) != len(labels):
+        print("data_x not of same size as data_y")
+        sys.exit()
+
+    return train_test_split(images, labels, test_size=0.2, stratify=labels)
+

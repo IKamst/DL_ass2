@@ -12,13 +12,13 @@ import IPython.display as display
 # Make a model that returns the style and content tensors.
 class StyleContentModel(tf.keras.models.Model):
     # Initialise the model.
-    def __init__(self, style_layers, content_layers):
+    def __init__(self, style_layers, content_layers, train_x, train_y):
         super(StyleContentModel, self).__init__()
-        self.vgg = make_vgg_layers(style_layers + content_layers)
+        self.vgg = make_vgg_layers(style_layers + content_layers, train_x, train_y)
         self.style_layers = style_layers
         self.content_layers = content_layers
         self.num_style_layers = len(style_layers)
-        self.vgg.trainable = False
+        self.vgg.trainable = True
 
     # This model returns the Gram matrix of the style_layers and content of the content_layers.
     def call(self, inputs):
@@ -62,12 +62,22 @@ def create_content_style_layers():
 
 
 # Build a VGG19 model and return a list of intermediate layer outputs.
-def make_vgg_layers(layer_names):
+def make_vgg_layers(layer_names, train_x, train_y):
     # If weights is set to 'imagenet', then a pretrained VGG is loaded.
     # If weights is set to NONE, then random weights are used.
+    # TODO do we include_top?
     vgg = tf.keras.applications.VGG19(include_top=False, weights='imagenet')
     # Setting trainable to True allows the model to learn and change weights.
-    vgg.trainable = False
+    vgg.trainable = True
+
+    vgg.compile('adam', tf.keras.losses.SparseCategoricalCrossentropy(from_logits = True), metrics = ['accuracy'])
+
+    # tf.Tensor(train_x)
+    print(train_x)
+    print(train_y)
+    train_x = np.asarray(train_x).astype(np.float)
+    train_y = np.asarray(train_y).astype(np.float)
+    vgg.fit(train_x, train_y)
 
     outputs = [vgg.get_layer(name).output for name in layer_names]
 
@@ -150,10 +160,10 @@ def train_style_transfer(image, extractor, opt, num_style_layers, num_content_la
 
 
 # Main function. This calls all other functions that are used during the style transfer process.
-def main_style_transfer(style_image, content_image):
+def main_style_transfer(train_x, test_x, train_y):
     content_layers, style_layers, num_content_layers, num_style_layers = create_content_style_layers()
     # Create the model.
-    extractor = StyleContentModel(style_layers, content_layers)
+    extractor = StyleContentModel(style_layers, content_layers, train_x, train_y)
     # Set style and content targets.
     style_targets = extractor(style_image)['style']
     content_targets = extractor(content_image)['content']
