@@ -12,9 +12,9 @@ import IPython.display as display
 # Make a model that returns the style and content tensors.
 class StyleContentModel(tf.keras.models.Model):
     # Initialise the model.
-    def __init__(self, style_layers, content_layers, train_x, train_y):
+    def __init__(self, style_layers, content_layers, train_ds, test_ds):
         super(StyleContentModel, self).__init__()
-        self.vgg = make_vgg_layers(style_layers + content_layers, train_x, train_y)
+        self.vgg = make_vgg_layers(style_layers + content_layers, train_ds, test_ds)
         self.style_layers = style_layers
         self.content_layers = content_layers
         self.num_style_layers = len(style_layers)
@@ -62,7 +62,7 @@ def create_content_style_layers():
 
 
 # Build a VGG19 model and return a list of intermediate layer outputs.
-def make_vgg_layers(layer_names, train_x, train_y):
+def make_vgg_layers(layer_names, train_ds, test_ds):
     # If weights is set to 'imagenet', then a pretrained VGG is loaded.
     # If weights is set to NONE, then random weights are used.
     # TODO do we include_top?
@@ -70,15 +70,19 @@ def make_vgg_layers(layer_names, train_x, train_y):
     # Setting trainable to True allows the model to learn and change weights.
     vgg.trainable = True
 
-    vgg.compile('adam', tf.keras.losses.SparseCategoricalCrossentropy(from_logits = True), metrics = ['accuracy'])
+    vgg.compile('adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
     # tf.Tensor(train_x)
-    print(train_x)
-    print(train_y)
-    train_x = np.asarray(train_x).astype(np.float)
-    train_y = np.asarray(train_y).astype(np.float)
-    vgg.fit(train_x, train_y)
-
+    # print(train_x)
+    # print(train_y)
+    # train_x = np.asarray(train_x).astype(np.float)
+    # train_y = np.asarray(train_y).astype(np.float)
+    # vgg.fit(train_x, train_y)
+    vgg.fit(
+        train_ds,
+        validation_data=test_ds,
+        epochs=3
+    )
     outputs = [vgg.get_layer(name).output for name in layer_names]
 
     model = tf.keras.Model([vgg.input], outputs)
@@ -160,10 +164,10 @@ def train_style_transfer(image, extractor, opt, num_style_layers, num_content_la
 
 
 # Main function. This calls all other functions that are used during the style transfer process.
-def main_style_transfer(train_x, test_x, train_y):
+def main_style_transfer(train_ds, test_ds):
     content_layers, style_layers, num_content_layers, num_style_layers = create_content_style_layers()
     # Create the model.
-    extractor = StyleContentModel(style_layers, content_layers, train_x, train_y)
+    extractor = StyleContentModel(style_layers, content_layers, train_ds, test_ds)
     # Set style and content targets.
     style_targets = extractor(style_image)['style']
     content_targets = extractor(content_image)['content']

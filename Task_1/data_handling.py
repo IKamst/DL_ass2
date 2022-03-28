@@ -1,8 +1,12 @@
 import sys
+from pathlib import Path
 
+import numpy as np
 import tensorflow as tf
 import tensorflow_datasets as tfds
 from sklearn.model_selection import train_test_split
+
+AUTOTUNE = tf.data.AUTOTUNE
 
 
 def load_img(path_to_img):
@@ -21,6 +25,7 @@ def load_img(path_to_img):
     img = img[tf.newaxis, :]
     return img
 
+
 def load_data():
     # content_images = tfds.load("clic")
     content_path = tf.keras.utils.get_file('YellowLabradorLooking_new.jpg',
@@ -31,6 +36,7 @@ def load_data():
     style_image = load_img(style_path)
     return content_image, style_image
 
+
 def process_data(images, labels):
     if len(images) != len(labels):
         print("data_x not of same size as data_y")
@@ -38,3 +44,34 @@ def process_data(images, labels):
 
     return train_test_split(images, labels, test_size=0.2, stratify=labels)
 
+
+def create_train_test_ds():
+    # TODO change seed
+    data_dir = Path("data")
+    train_ds = tf.keras.utils.image_dataset_from_directory(
+        data_dir,
+        validation_split=0.2,
+        subset="training",
+        seed=123)
+
+    test_ds = tf.keras.utils.image_dataset_from_directory(
+        data_dir,
+        validation_split=0.2,
+        subset="validation",
+        seed=123)
+    print(train_ds)
+    for image_batch, labels_batch in train_ds:
+        print(image_batch.shape)
+        print(labels_batch.shape)
+        break
+
+    normalization_layer = tf.keras.layers.Rescaling(1. / 255)
+    normalised_train_ds = train_ds.map(lambda x, y: (normalization_layer(x), y))
+    image_batch, labels_batch = next(iter(normalised_train_ds))
+    print(labels_batch)
+    normalised_test_ds = test_ds.map(lambda x, y: (normalization_layer(x), y))
+    image_batch, labels_batch = next(iter(normalised_test_ds))
+    new_train_ds = normalised_train_ds.cache().prefetch(buffer_size=AUTOTUNE)
+    new_test_ds = normalised_test_ds.cache().prefetch(buffer_size=AUTOTUNE)
+
+    return new_train_ds, new_test_ds
