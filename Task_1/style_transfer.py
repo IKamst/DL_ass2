@@ -70,7 +70,7 @@ def make_vgg_layers(layer_names, train_ds, test_ds):
     # Setting trainable to True allows the model to learn and change weights.
     vgg.trainable = True
 
-    vgg.compile('adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+    vgg.compile('adam', loss='sparse_categorical_crossentropy')
 
     # tf.Tensor(train_x)
     # print(train_x)

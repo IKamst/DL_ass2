@@ -52,13 +52,16 @@ def create_train_test_ds():
         data_dir,
         validation_split=0.2,
         subset="training",
-        seed=123)
+        seed=123,
+        batch_size=32)
 
     test_ds = tf.keras.utils.image_dataset_from_directory(
         data_dir,
         validation_split=0.2,
         subset="validation",
-        seed=123)
+        seed=123,
+        batch_size=32)
+
     print(train_ds)
     for image_batch, labels_batch in train_ds:
         print(image_batch.shape)
@@ -71,7 +74,7 @@ def create_train_test_ds():
     print(labels_batch)
     normalised_test_ds = test_ds.map(lambda x, y: (normalization_layer(x), y))
     image_batch, labels_batch = next(iter(normalised_test_ds))
-    new_train_ds = normalised_train_ds.cache().prefetch(buffer_size=AUTOTUNE)
-    new_test_ds = normalised_test_ds.cache().prefetch(buffer_size=AUTOTUNE)
+    # new_train_ds = normalised_train_ds.cache().prefetch(buffer_size=AUTOTUNE)
+    # new_test_ds = normalised_test_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
-    return new_train_ds, new_test_ds
+    return normalised_train_ds, normalised_test_ds
