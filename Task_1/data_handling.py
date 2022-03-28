@@ -53,14 +53,16 @@ def create_train_test_ds():
         validation_split=0.2,
         subset="training",
         seed=123,
-        batch_size=32)
+        batch_size=32,
+        image_size=(224, 224))
 
     test_ds = tf.keras.utils.image_dataset_from_directory(
         data_dir,
         validation_split=0.2,
         subset="validation",
         seed=123,
-        batch_size=32)
+        batch_size=32,
+        image_size=(224, 224))
 
     print(train_ds)
     for image_batch, labels_batch in train_ds:

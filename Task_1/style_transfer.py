@@ -65,7 +65,7 @@ def create_content_style_layers():
 def make_vgg_layers(layer_names, train_ds, test_ds):
     # If weights is set to 'imagenet', then a pretrained VGG is loaded.
     # If weights is set to NONE, then random weights are used.
-    # TODO do we include_top?
+    # TODO do we include_top? Is False if you fit it on your own problem.
     vgg = tf.keras.applications.VGG19(include_top=False, weights='imagenet')
     # Setting trainable to True allows the model to learn and change weights.
     vgg.trainable = True
@@ -78,6 +78,7 @@ def make_vgg_layers(layer_names, train_ds, test_ds):
     # train_x = np.asarray(train_x).astype(np.float)
     # train_y = np.asarray(train_y).astype(np.float)
     # vgg.fit(train_x, train_y)
+    # TODO logits and labels shape need to match in first dimension
     vgg.fit(
         train_ds,
         validation_data=test_ds,
