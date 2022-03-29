@@ -1,12 +1,11 @@
 import sys
 from pathlib import Path
 
-import numpy as np
 import tensorflow as tf
-import tensorflow_datasets as tfds
 from sklearn.model_selection import train_test_split
 
 AUTOTUNE = tf.data.AUTOTUNE
+IMAGE_SIZE = [224, 224] #Default image size for VGG19
 
 
 def load_img(path_to_img):
@@ -69,14 +68,5 @@ def create_train_test_ds():
         print(image_batch.shape)
         print(labels_batch.shape)
         break
+    return train_ds, test_ds
 
-    normalization_layer = tf.keras.layers.Rescaling(1. / 255)
-    normalised_train_ds = train_ds.map(lambda x, y: (normalization_layer(x), y))
-    image_batch, labels_batch = next(iter(normalised_train_ds))
-    print(labels_batch)
-    normalised_test_ds = test_ds.map(lambda x, y: (normalization_layer(x), y))
-    image_batch, labels_batch = next(iter(normalised_test_ds))
-    # new_train_ds = normalised_train_ds.cache().prefetch(buffer_size=AUTOTUNE)
-    # new_test_ds = normalised_test_ds.cache().prefetch(buffer_size=AUTOTUNE)
-
-    return normalised_train_ds, normalised_test_ds

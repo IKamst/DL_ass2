@@ -6,7 +6,6 @@ import PIL
 import numpy as np
 import tensorflow as tf
 from matplotlib import pyplot as plt
-import IPython.display as display
 
 
 # Make a model that returns the style and content tensors.
@@ -66,27 +65,49 @@ def make_vgg_layers(layer_names, train_ds, test_ds):
     # If weights is set to 'imagenet', then a pretrained VGG is loaded.
     # If weights is set to NONE, then random weights are used.
     # TODO do we include_top? Is False if you fit it on your own problem.
-    vgg = tf.keras.applications.VGG19(include_top=False, weights='imagenet')
-    # Setting trainable to True allows the model to learn and change weights.
-    vgg.trainable = True
+    image_input = tf.keras.layers.Input(shape=(224, 224, 3))
+    vgg_base_model = tf.keras.applications.VGG19(include_top=False, weights=None, input_tensor=image_input)
+    vgg_base_model.summary()
 
-    vgg.compile('adam', loss='sparse_categorical_crossentropy')
+    # Create new layers that can be trained, so the model can classify images from our dataset
+    FC_layer_Flatten = tf.keras.layers.Flatten()(vgg_base_model.output)  # Line 5
+    Dense = tf.keras.layers.Dense(units=1000, activation='relu')(FC_layer_Flatten)  # Line 6
+    Dense = tf.keras.layers.Dense(units=800, activation='relu')(Dense)  # Line 7
+    Dense = tf.keras.layers.Dense(units=400, activation='relu')(Dense)  # Line 8
+    Dense = tf.keras.layers.Dense(units=200, activation='relu')(Dense)  # Line 9
+    Dense = tf.keras.layers.Dense(units=100, activation='relu')(Dense)  # Line 10
+    Classification = tf.keras.layers.Dense(units=8, activation='softmax')(Dense)  # Line 11
 
-    # tf.Tensor(train_x)
-    # print(train_x)
-    # print(train_y)
-    # train_x = np.asarray(train_x).astype(np.float)
-    # train_y = np.asarray(train_y).astype(np.float)
-    # vgg.fit(train_x, train_y)
-    # TODO logits and labels shape need to match in first dimension
-    vgg.fit(
-        train_ds,
-        validation_data=test_ds,
-        epochs=3
-    )
-    outputs = [vgg.get_layer(name).output for name in layer_names]
+    model = tf.keras.Model(inputs=image_input, outputs=Classification)  # Line 12
+    model.summary()
 
-    model = tf.keras.Model([vgg.input], outputs)
+    # Train the model
+    base_learning_rate = 0.0001
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=base_learning_rate),
+                  loss=tf.keras.losses.SparseCategoricalCrossentropy(), metrics=['accuracy'])
+
+    history = model.fit(train_ds, epochs=3, validation_data=test_ds)
+    print(history)
+    # # Setting trainable to True allows the model to learn and change weights.
+    # vgg.trainable = True
+    #
+    # vgg.compile('adam', loss='sparse_categorical_crossentropy')
+    #
+    # # tf.Tensor(train_x)
+    # # print(train_x)
+    # # print(train_y)
+    # # train_x = np.asarray(train_x).astype(np.float)
+    # # train_y = np.asarray(train_y).astype(np.float)
+    # # vgg.fit(train_x, train_y)
+    # # TODO logits and labels shape need to match in first dimension
+    # vgg.fit(
+    #     train_ds,
+    #     validation_data=test_ds,
+    #     epochs=3
+    # )
+    outputs = [model.get_layer(name).output for name in layer_names]
+
+    model = tf.keras.Model([model.input], outputs)
     return model
 
 
