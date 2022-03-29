@@ -1,21 +1,15 @@
 from pathlib import Path
 import tensorflow as tf
 
-AUTOTUNE = tf.data.AUTOTUNE
 IMAGE_SIZE = [224, 224] #Default image size for VGG19
 
 
 def load_img(path_to_img):
-    max_dim = 512
     img = tf.io.read_file(path_to_img)
     img = tf.image.decode_image(img, channels=3)
     img = tf.image.convert_image_dtype(img, tf.float32)
 
-    shape = tf.cast(tf.shape(img)[:-1], tf.float32)
-    long_dim = max(shape)
-    scale = max_dim / long_dim
-
-    new_shape = tf.cast(shape * scale, tf.int32)
+    new_shape = tf.cast([224, 224], tf.int32)
 
     img = tf.image.resize(img, new_shape)
     img = img[tf.newaxis, :]
@@ -37,6 +31,10 @@ def get_style_image():
     style_path = tf.keras.utils.get_file('starry.jpg',
                                          'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg')
     style_image = load_img(style_path)
+    # print("Style Images")
+    # print(style_image)
+    # style_image = style_image[None, :]
+    # print(style_image)
     return style_image
 
 def create_train_test_ds():

@@ -7,6 +7,7 @@ import numpy as np
 import tensorflow as tf
 from matplotlib import pyplot as plt
 
+N_CLASSES = 2
 
 # Make a model that returns the style and content tensors.
 class StyleContentModel(tf.keras.models.Model):
@@ -66,7 +67,7 @@ def make_vgg_layers(layer_names, train_ds, test_ds):
     # If weights is set to NONE, then random weights are used.
     # TODO do we include_top? Is False if you fit it on your own problem.
     image_input = tf.keras.layers.Input(shape=(224, 224, 3))
-    vgg_base_model = tf.keras.applications.VGG19(include_top=False, weights=None, input_tensor=image_input)
+    vgg_base_model = tf.keras.applications.VGG19(include_top=False, weights='imagenet', input_tensor=image_input)
     vgg_base_model.summary()
 
     # Create new layers that can be trained, so the model can classify images from our dataset
@@ -76,7 +77,7 @@ def make_vgg_layers(layer_names, train_ds, test_ds):
     Dense = tf.keras.layers.Dense(units=400, activation='relu')(Dense)  # Line 8
     Dense = tf.keras.layers.Dense(units=200, activation='relu')(Dense)  # Line 9
     Dense = tf.keras.layers.Dense(units=100, activation='relu')(Dense)  # Line 10
-    Classification = tf.keras.layers.Dense(units=8, activation='softmax')(Dense)  # Line 11
+    Classification = tf.keras.layers.Dense(units=N_CLASSES, activation='softmax')(Dense)  # Line 11
 
     model = tf.keras.Model(inputs=image_input, outputs=Classification)  # Line 12
     model.summary()
@@ -167,6 +168,7 @@ def train_style_transfer(image, extractor, opt, num_style_layers, num_content_la
             step += 1
             train_step(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets)
             print(".", end='', flush=True)
+        print(image)
         tensor_to_image(image).show()
         print("Train step: {}".format(step))
 
@@ -180,8 +182,12 @@ def main_style_transfer(train_ds, test_ds, style_image):
     # TODO loop over test set to have more content images
     for images, labels in test_ds.take(1):
         content_image = images[0]
+        tensor_to_image(content_image).show()
+        content_image = content_image[None, :]
 
     # Set style and content targets.
+    print(style_image.shape)
+    print(content_image.shape)
     style_targets = extractor(style_image)['style']
     content_targets = extractor(content_image)['content']
     image = tf.Variable(content_image)
