@@ -86,25 +86,11 @@ def make_vgg_layers(layer_names, train_ds, test_ds):
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=base_learning_rate),
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(), metrics=['accuracy'])
 
-    history = model.fit(train_ds, epochs=3, validation_data=test_ds)
+    history = model.fit(train_ds, epochs=1, batch_size=32, validation_data=test_ds)
     print(history)
     # # Setting trainable to True allows the model to learn and change weights.
     # vgg.trainable = True
-    #
-    # vgg.compile('adam', loss='sparse_categorical_crossentropy')
-    #
-    # # tf.Tensor(train_x)
-    # # print(train_x)
-    # # print(train_y)
-    # # train_x = np.asarray(train_x).astype(np.float)
-    # # train_y = np.asarray(train_y).astype(np.float)
-    # # vgg.fit(train_x, train_y)
-    # # TODO logits and labels shape need to match in first dimension
-    # vgg.fit(
-    #     train_ds,
-    #     validation_data=test_ds,
-    #     epochs=3
-    # )
+
     outputs = [model.get_layer(name).output for name in layer_names]
 
     model = tf.keras.Model([model.input], outputs)
@@ -186,10 +172,15 @@ def train_style_transfer(image, extractor, opt, num_style_layers, num_content_la
 
 
 # Main function. This calls all other functions that are used during the style transfer process.
-def main_style_transfer(train_ds, test_ds):
+def main_style_transfer(train_ds, test_ds, style_image):
     content_layers, style_layers, num_content_layers, num_style_layers = create_content_style_layers()
     # Create the model.
     extractor = StyleContentModel(style_layers, content_layers, train_ds, test_ds)
+    # Select the content image
+    # TODO loop over test set to have more content images
+    for images, labels in test_ds.take(1):
+        content_image = images[0]
+
     # Set style and content targets.
     style_targets = extractor(style_image)['style']
     content_targets = extractor(content_image)['content']

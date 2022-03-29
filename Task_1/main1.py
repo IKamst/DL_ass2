@@ -17,4 +17,5 @@ if __name__ == "__main__":
     # data_handling.load_data()
     # content_image, style_image = data_handling.load_data()
     # style_transfer_fast.fast_transfer_style()
-    style_transfer.main_style_transfer(train_ds, test_ds)
+    style_image = data_handling.get_style_image()
+    style_transfer.main_style_transfer(train_ds, test_ds, style_image)

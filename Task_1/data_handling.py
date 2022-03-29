@@ -1,8 +1,5 @@
-import sys
 from pathlib import Path
-
 import tensorflow as tf
-from sklearn.model_selection import train_test_split
 
 AUTOTUNE = tf.data.AUTOTUNE
 IMAGE_SIZE = [224, 224] #Default image size for VGG19
@@ -36,13 +33,11 @@ def load_data():
     return content_image, style_image
 
 
-def process_data(images, labels):
-    if len(images) != len(labels):
-        print("data_x not of same size as data_y")
-        sys.exit()
-
-    return train_test_split(images, labels, test_size=0.2, stratify=labels)
-
+def get_style_image():
+    style_path = tf.keras.utils.get_file('starry.jpg',
+                                         'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg')
+    style_image = load_img(style_path)
+    return style_image
 
 def create_train_test_ds():
     # TODO change seed
