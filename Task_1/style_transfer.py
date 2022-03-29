@@ -169,7 +169,8 @@ def train_style_transfer(image, extractor, opt, num_style_layers, num_content_la
             train_step(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets)
             print(".", end='', flush=True)
         print(image)
-        tensor_to_image(image).show()
+        plt.imshow(image.numpy().astype("uint8"))
+        plt.show()
         print("Train step: {}".format(step))
 
 
@@ -182,8 +183,11 @@ def main_style_transfer(train_ds, test_ds, style_image):
     # TODO loop over test set to have more content images
     for images, labels in test_ds.take(1):
         content_image = images[0]
-        tensor_to_image(content_image).show()
+        plt.imshow(content_image.numpy().astype("uint8"))
+        plt.show()
         content_image = content_image[None, :]
+        plt.imshow(content_image.numpy().astype("uint8"))
+        plt.show()
 
     # Set style and content targets.
     print(style_image.shape)

@@ -1,5 +1,8 @@
 from pathlib import Path
 import tensorflow as tf
+from matplotlib import pyplot as plt
+
+from style_transfer import tensor_to_image
 
 IMAGE_SIZE = [224, 224] #Default image size for VGG19
 
@@ -56,7 +59,11 @@ def create_train_test_ds():
         batch_size=32,
         image_size=(224, 224))
 
-    print(train_ds)
+    for images, labels in test_ds.take(1):
+        content_image = images[0]
+        plt.imshow(content_image.numpy().astype("uint8"))
+        plt.show()
+
     for image_batch, labels_batch in train_ds:
         print(image_batch.shape)
         print(labels_batch.shape)
