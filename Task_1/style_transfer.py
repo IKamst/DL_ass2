@@ -87,7 +87,7 @@ def make_vgg_layers(layer_names, train_ds, test_ds):
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=base_learning_rate),
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(), metrics=['accuracy'])
 
-    history = model.fit(train_ds, epochs=1, batch_size=32, validation_data=test_ds)
+    history = model.fit(train_ds, epochs=10, batch_size=32, validation_data=test_ds)
     print(history)
     # # Setting trainable to True allows the model to learn and change weights.
     # vgg.trainable = True
@@ -116,6 +116,12 @@ def style_content_loss(outputs, num_style_layers, num_content_layers, style_targ
     content_weight = 1e-2
     style_outputs = outputs['style']
     content_outputs = outputs['content']
+    print("STYLE CONTENT OUTPUTS")
+    print(style_outputs)
+    print(content_outputs)
+    print("STYLE CONTENT TARGETS")
+    print(style_targets)
+    print(content_targets)
     style_loss = tf.add_n([tf.reduce_mean((style_outputs[name]-style_targets[name])**2)
                            for name in style_outputs.keys()])
     style_loss *= style_weight / num_style_layers
@@ -124,6 +130,7 @@ def style_content_loss(outputs, num_style_layers, num_content_layers, style_targ
                              for name in content_outputs.keys()])
     content_loss *= content_weight / num_content_layers
     loss = style_loss + content_loss
+    print(loss)
     return loss
 
 
@@ -168,8 +175,9 @@ def train_style_transfer(image, extractor, opt, num_style_layers, num_content_la
             step += 1
             train_step(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets)
             print(".", end='', flush=True)
-        print(image)
-        plt.imshow(image.numpy().astype("uint8"))
+        image_show = image[0, :, :, :]
+        print(image_show)
+        plt.imshow(image_show.numpy().astype("uint8"))
         plt.show()
         print("Train step: {}".format(step))
 
@@ -186,8 +194,10 @@ def main_style_transfer(train_ds, test_ds, style_image):
         plt.imshow(content_image.numpy().astype("uint8"))
         plt.show()
         content_image = content_image[None, :]
-        plt.imshow(content_image.numpy().astype("uint8"))
-        plt.show()
+        print(content_image.shape)
+        # print(content_image.shape)
+        # plt.imshow(content_image.numpy().astype("uint8"))
+        # plt.show()
 
     # Set style and content targets.
     print(style_image.shape)

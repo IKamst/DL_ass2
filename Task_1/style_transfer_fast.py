@@ -13,7 +13,7 @@ mpl.rcParams['axes.grid'] = False
 
 import numpy as np
 import PIL.Image
-import tensorflow_hub as hub
+# import tensorflow_hub as hub
 
 
 def load_img(path_to_img):
