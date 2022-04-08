@@ -87,7 +87,7 @@ def make_vgg_layers(layer_names, train_ds, test_ds):
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=base_learning_rate),
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(), metrics=['accuracy'])
 
-    history = model.fit(train_ds, epochs=10, batch_size=32, validation_data=test_ds)
+    history = model.fit(train_ds, epochs=1, batch_size=32, validation_data=test_ds)
     print(history)
     # # Setting trainable to True allows the model to learn and change weights.
     # vgg.trainable = True
@@ -112,7 +112,8 @@ def clip_0_1(image):
 
 
 def style_content_loss(outputs, num_style_layers, num_content_layers, style_targets, content_targets):
-    style_weight = 1e4
+    print(num_style_layers)
+    style_weight = 1e1
     content_weight = 1e-2
     style_outputs = outputs['style']
     content_outputs = outputs['content']
@@ -129,6 +130,8 @@ def style_content_loss(outputs, num_style_layers, num_content_layers, style_targ
     content_loss = tf.add_n([tf.reduce_mean((content_outputs[name]-content_targets[name])**2)
                              for name in content_outputs.keys()])
     content_loss *= content_weight / num_content_layers
+    print(style_loss)
+    print(content_loss)
     loss = style_loss + content_loss
     print(loss)
     return loss
@@ -141,11 +144,12 @@ def train_step(image, extractor, opt, num_style_layers, num_content_layers, styl
     with tf.GradientTape() as tape:
         outputs = extractor(image)
         loss = style_content_loss(outputs, num_style_layers, num_content_layers, style_targets, content_targets)
-
+    tensor_to_image(image).show()
     grad = tape.gradient(loss, image)
     opt.apply_gradients([(grad, image)])
+    # plt.imshow(tensor_to_image(image))
     image.assign(clip_0_1(image))
-    return
+    return image
 
 
 # Create an image from the tensor.
@@ -163,6 +167,7 @@ def imshow(image, title=None):
         image = tf.squeeze(image, axis=0)
 
     plt.imshow(image)
+    plt.show()
     if title:
         plt.title(title)
     return
@@ -173,12 +178,14 @@ def train_style_transfer(image, extractor, opt, num_style_layers, num_content_la
     for n in range(epochs):
         for m in range(steps_per_epoch):
             step += 1
-            train_step(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets)
+            image = train_step(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets)
             print(".", end='', flush=True)
         image_show = image[0, :, :, :]
+        print("IMAGE")
         print(image_show)
-        plt.imshow(image_show.numpy().astype("uint8"))
-        plt.show()
+        # plt.imshow(tensor_to_image(image_show))
+        # plt.imshow(image_show.numpy().astype("uint8"))
+        # plt.show()
         print("Train step: {}".format(step))
 
 
@@ -191,8 +198,8 @@ def main_style_transfer(train_ds, test_ds, style_image):
     # TODO loop over test set to have more content images
     for images, labels in test_ds.take(1):
         content_image = images[0]
-        plt.imshow(content_image.numpy().astype("uint8"))
-        plt.show()
+        # plt.imshow(content_image.numpy().astype("uint8"))
+        # plt.show()
         content_image = content_image[None, :]
         print(content_image.shape)
         # print(content_image.shape)
@@ -208,7 +215,7 @@ def main_style_transfer(train_ds, test_ds, style_image):
 
     opt = tf.optimizers.Adam(learning_rate=0.02, beta_1=0.99, epsilon=1e-1)
 
-    epochs = 10
+    epochs = 100
     steps_per_epoch = 10
 
     train_style_transfer(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets, epochs, steps_per_epoch)
