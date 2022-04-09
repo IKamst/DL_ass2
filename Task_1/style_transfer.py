@@ -6,6 +6,7 @@ import PIL
 import numpy as np
 import tensorflow as tf
 from matplotlib import pyplot as plt
+import IPython.display as display
 
 N_CLASSES = 2
 
@@ -112,17 +113,10 @@ def clip_0_1(image):
 
 
 def style_content_loss(outputs, num_style_layers, num_content_layers, style_targets, content_targets):
-    print(num_style_layers)
-    style_weight = 1e1
-    content_weight = 1e-2
+    style_weight = 1e-2
+    content_weight = 1e4
     style_outputs = outputs['style']
     content_outputs = outputs['content']
-    print("STYLE CONTENT OUTPUTS")
-    print(style_outputs)
-    print(content_outputs)
-    print("STYLE CONTENT TARGETS")
-    print(style_targets)
-    print(content_targets)
     style_loss = tf.add_n([tf.reduce_mean((style_outputs[name]-style_targets[name])**2)
                            for name in style_outputs.keys()])
     style_loss *= style_weight / num_style_layers
@@ -130,9 +124,12 @@ def style_content_loss(outputs, num_style_layers, num_content_layers, style_targ
     content_loss = tf.add_n([tf.reduce_mean((content_outputs[name]-content_targets[name])**2)
                              for name in content_outputs.keys()])
     content_loss *= content_weight / num_content_layers
+    print("STYLE LOSS")
     print(style_loss)
+    print("CONTENT LOSS")
     print(content_loss)
     loss = style_loss + content_loss
+    print("TOTAL LOSS")
     print(loss)
     return loss
 
@@ -144,7 +141,10 @@ def train_step(image, extractor, opt, num_style_layers, num_content_layers, styl
     with tf.GradientTape() as tape:
         outputs = extractor(image)
         loss = style_content_loss(outputs, num_style_layers, num_content_layers, style_targets, content_targets)
-    tensor_to_image(image).show()
+
+    # display.clear_output(wait=True)
+    # plt.imshow(tensor_to_image(image))
+    # plt.show()
     grad = tape.gradient(loss, image)
     opt.apply_gradients([(grad, image)])
     # plt.imshow(tensor_to_image(image))
@@ -181,13 +181,19 @@ def train_style_transfer(image, extractor, opt, num_style_layers, num_content_la
             image = train_step(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets)
             print(".", end='', flush=True)
         image_show = image[0, :, :, :]
-        print("IMAGE")
-        print(image_show)
-        # plt.imshow(tensor_to_image(image_show))
+        plt.imshow(tensor_to_image(image_show))
         # plt.imshow(image_show.numpy().astype("uint8"))
-        # plt.show()
+        plt.show()
         print("Train step: {}".format(step))
 
+
+def load_image(image):
+    image = tf.io.read_file("data/accordion/image_0001.jpg")
+    img = tf.image.decode_image(image, channels=3)
+    img = tf.image.convert_image_dtype(img, tf.float32)
+    img = tf.image.resize(img, [224, 224])
+    img = img[tf.newaxis, :]
+    return img
 
 # Main function. This calls all other functions that are used during the style transfer process.
 def main_style_transfer(train_ds, test_ds, style_image):
@@ -196,22 +202,21 @@ def main_style_transfer(train_ds, test_ds, style_image):
     extractor = StyleContentModel(style_layers, content_layers, train_ds, test_ds)
     # Select the content image
     # TODO loop over test set to have more content images
+
+
+
     for images, labels in test_ds.take(1):
-        content_image = images[0]
-        # plt.imshow(content_image.numpy().astype("uint8"))
-        # plt.show()
-        content_image = content_image[None, :]
-        print(content_image.shape)
-        # print(content_image.shape)
-        # plt.imshow(content_image.numpy().astype("uint8"))
-        # plt.show()
+
+        content_image = load_image(images[0])
+
+        imshow(content_image)
 
     # Set style and content targets.
-    print(style_image.shape)
-    print(content_image.shape)
     style_targets = extractor(style_image)['style']
     content_targets = extractor(content_image)['content']
     image = tf.Variable(content_image)
+
+    tensor_to_image(image).show()
 
     opt = tf.optimizers.Adam(learning_rate=0.02, beta_1=0.99, epsilon=1e-1)
 
