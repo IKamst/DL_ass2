@@ -32,6 +32,7 @@ def load_img(path_to_img):
     img = img[tf.newaxis, :]
     return img
 
+
 def imshow(image, title=None):
     if len(image.shape) > 3:
         image = tf.squeeze(image, axis=0)

@@ -7,8 +7,11 @@ import numpy as np
 import tensorflow as tf
 from matplotlib import pyplot as plt
 import IPython.display as display
+import os
 
 N_CLASSES = 2
+RUN_NUMBER = 1
+
 
 # Make a model that returns the style and content tensors.
 class StyleContentModel(tf.keras.models.Model):
@@ -36,7 +39,6 @@ class StyleContentModel(tf.keras.models.Model):
         style_outputs = [gram_matrix(style_output) for style_output in style_outputs]
 
         # Make content and style dictionaries.
-        # TODO determine what exactly happens here.
         content_dict = {content_name: value for content_name, value
                         in zip(self.content_layers, content_outputs)}
 
@@ -66,19 +68,13 @@ def create_content_style_layers():
 def make_vgg_layers(layer_names, train_ds, test_ds):
     # If weights is set to 'imagenet', then a pretrained VGG is loaded.
     # If weights is set to NONE, then random weights are used.
-    # TODO do we include_top? Is False if you fit it on your own problem.
     image_input = tf.keras.layers.Input(shape=(224, 224, 3))
     vgg_base_model = tf.keras.applications.VGG19(include_top=False, weights='imagenet', input_tensor=image_input)
     vgg_base_model.summary()
 
     # Create new layers that can be trained, so the model can classify images from our dataset
-    FC_layer_Flatten = tf.keras.layers.Flatten()(vgg_base_model.output)  # Line 5
-    # Dense = tf.keras.layers.Dense(units=1000, activation='relu')(FC_layer_Flatten)  # Line 6
-    # Dense = tf.keras.layers.Dense(units=800, activation='relu')(Dense)  # Line 7
-    # Dense = tf.keras.layers.Dense(units=400, activation='relu')(Dense)  # Line 8
-    # Dense = tf.keras.layers.Dense(units=200, activation='relu')(Dense)  # Line 9
-    # Dense = tf.keras.layers.Dense(units=100, activation='relu')(Dense)  # Line 10
-    Classification = tf.keras.layers.Dense(units=N_CLASSES, activation='softmax')(FC_layer_Flatten)  # Line 11
+    FC_layer_Flatten = tf.keras.layers.Flatten()(vgg_base_model.output)
+    Classification = tf.keras.layers.Dense(units=N_CLASSES, activation='softmax')(FC_layer_Flatten)
 
     model = tf.keras.Model(inputs=image_input, outputs=Classification)  # Line 12
     model.summary()
@@ -90,17 +86,14 @@ def make_vgg_layers(layer_names, train_ds, test_ds):
 
     history = model.fit(train_ds, epochs=1, batch_size=32, validation_data=test_ds)
     print(history)
-    # # Setting trainable to True allows the model to learn and change weights.
-    # vgg.trainable = True
 
     outputs = [model.get_layer(name).output for name in layer_names]
-
     model = tf.keras.Model([model.input], outputs)
     return model
 
 
-# Calculate style
-# TODO understand this better.
+# Calculate style, which is described by the means and correlations across the different feature maps.
+# This can be done using the Gram matrix.
 def gram_matrix(input_tensor):
     result = tf.linalg.einsum('bijc,bijd->bcd', input_tensor, input_tensor)
     input_shape = tf.shape(input_tensor)
@@ -108,15 +101,20 @@ def gram_matrix(input_tensor):
     return result / num_locations
 
 
+# Clip the values of the image, so they are between 0 and 1.
 def clip_0_1(image):
-  return tf.clip_by_value(image, clip_value_min=0.0, clip_value_max=1.0)
+    return tf.clip_by_value(image, clip_value_min=0.0, clip_value_max=1.0)
 
 
+# Determine the loss, which is a linear combination of the style and content loss.
 def style_content_loss(outputs, num_style_layers, num_content_layers, style_targets, content_targets):
+    # Set weights that change the influence of the style and content in the updated image.
     style_weight = 1e-2
     content_weight = 1e4
+    # Get the current outputs for style and content.
     style_outputs = outputs['style']
     content_outputs = outputs['content']
+    # Determine the style loss.
     style_loss = tf.add_n([tf.reduce_mean((style_outputs[name]-style_targets[name])**2)
                            for name in style_outputs.keys()])
     style_loss *= style_weight / num_style_layers
@@ -134,20 +132,15 @@ def style_content_loss(outputs, num_style_layers, num_content_layers, style_targ
     return loss
 
 
-# Update the image
-# TODO check if tf.function() is necessary in any way?
+# Update the image using gradient descent with loss.
 # @tf.function()
 def train_step(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets):
     with tf.GradientTape() as tape:
         outputs = extractor(image)
         loss = style_content_loss(outputs, num_style_layers, num_content_layers, style_targets, content_targets)
 
-    # display.clear_output(wait=True)
-    # plt.imshow(tensor_to_image(image))
-    # plt.show()
     grad = tape.gradient(loss, image)
     opt.apply_gradients([(grad, image)])
-    # plt.imshow(tensor_to_image(image))
     image.assign(clip_0_1(image))
     return image
 
@@ -162,68 +155,87 @@ def tensor_to_image(tensor):
     return PIL.Image.fromarray(tensor)
 
 
-def imshow(image, title=None):
+# Plot the image.
+def imshow(image, step, title=None):
     if len(image.shape) > 3:
         image = tf.squeeze(image, axis=0)
 
     plt.imshow(image)
     plt.show()
+    path = 'saved_images/' + str(RUN_NUMBER)
+    plt.savefig(path + '/' + str(step))
     if title:
         plt.title(title)
     return
 
 
-def train_style_transfer(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets, epochs, steps_per_epoch):
+# Train the style transfer part.
+def train_style_transfer(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets,
+                         epochs, steps_per_epoch):
     step = 0
-    for n in range(epochs):
-        for m in range(steps_per_epoch):
+    # Train the model using gradient descent for a certain amount of epochs.
+    for _ in range(epochs):
+        for _ in range(steps_per_epoch):
             step += 1
-            image = train_step(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets)
+            image = train_step(image, extractor, opt, num_style_layers, num_content_layers, style_targets,
+                               content_targets)
             print(".", end='', flush=True)
+        # Reformat the image, so it can be shown.
         image_show = image[0, :, :, :]
         plt.imshow(tensor_to_image(image_show))
-        # plt.imshow(image_show.numpy().astype("uint8"))
+        path = 'saved_images/' + str(RUN_NUMBER)
+        plt.savefig(path + '/' + str(step))
         plt.show()
         print("Train step: {}".format(step))
+    return
 
 
-def load_image(image):
+# Load the image in the correct way, so it can be used as input for the model.
+def load_image(content_path):
     content_path = tf.keras.utils.get_file('YellowLabradorLooking_new.jpg',
                                            'https://storage.googleapis.com/download.tensorflow.org/example_images/YellowLabradorLooking_new.jpg')
-    image = tf.io.read_file(content_path)
-    img = tf.image.decode_image(image, channels=3)
+    img = tf.io.read_file(content_path)
+    img = tf.image.decode_image(img, channels=3)
     img = tf.image.convert_image_dtype(img, tf.float32)
     img = tf.image.resize(img, [224, 224])
     img = img[tf.newaxis, :]
     return img
 
-# Main function. This calls all other functions that are used during the style transfer process.
-def main_style_transfer(train_ds, test_ds, style_image):
-    content_layers, style_layers, num_content_layers, num_style_layers = create_content_style_layers()
-    # Create the model.
-    extractor = StyleContentModel(style_layers, content_layers, train_ds, test_ds)
-    # Select the content image
-    # TODO loop over test set to have more content images
 
-
-
-    for images, labels in test_ds.take(1):
-
-        content_image = load_image(images[0])
-
-        imshow(content_image)
-
+# Initialise some variables for style transfer and then train the style transfer model.
+def transfer_style(extractor, style_image, content_image, num_content_layers, num_style_layers):
     # Set style and content targets.
     style_targets = extractor(style_image)['style']
     content_targets = extractor(content_image)['content']
     image = tf.Variable(content_image)
-
-    tensor_to_image(image).show()
+    # tensor_to_image(image).show()
 
     opt = tf.optimizers.Adam(learning_rate=0.02, beta_1=0.99, epsilon=1e-1)
+    epochs = 1
+    steps_per_epoch = 1
+    train_style_transfer(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets,
+                         epochs, steps_per_epoch)
+    return
 
-    epochs = 100
-    steps_per_epoch = 10
 
-    train_style_transfer(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets, epochs, steps_per_epoch)
+# Main function. This calls all other functions that are used during the style transfer process.
+def main_style_transfer(train_ds, test_ds, style_image):
+    # Make a directory to save the images.
+    path = 'saved_images/' + str(RUN_NUMBER)
+    try:
+        os.makedirs(path)
+    except OSError:
+        print("Directory already exists")
+    # Create content and style layers.
+    content_layers, style_layers, num_content_layers, num_style_layers = create_content_style_layers()
+    # Create the model.
+    extractor = StyleContentModel(style_layers, content_layers, train_ds, test_ds)
+
+    # Loop over some images of the test set, so we run style transfer using the same trained CNN for all test data.
+    # TODO change this, so it loops over a folder.
+    for images, labels in test_ds.take(1):
+        for i in range(5):
+            content_image = load_image(images[i])
+            imshow(content_image, 0)
+            transfer_style(extractor, style_image, content_image, num_content_layers, num_style_layers)
     return
