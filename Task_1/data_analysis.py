@@ -18,16 +18,12 @@ def plot_images(image):
     return
 
 
-# Determine the dimensions, while keeping track of the images and their labels.
-def determine_dimensions(directory, dimension_array, list_cnt_images):
-    array_x_dim = []
-    array_y_dim = []
+# Keep track of the images and their labels.
+def process_data(directory, list_cnt_images):
     cnt_images = 0
     names_images = [x for x in directory.iterdir()]
     class_labels = []
     class_images = []
-    min_x_dim = np.inf
-    min_y_dim = np.inf
     # Loop over all images.
     for name in names_images:
         # Keep track of the amount of images.
@@ -35,21 +31,13 @@ def determine_dimensions(directory, dimension_array, list_cnt_images):
         # Read the image.
         img = cv2.imread(str(name))
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        # Keep track of the dimensions of the image.
-        array_x_dim.append(img.shape[1])
-        array_y_dim.append(img.shape[0])
-        if img.shape[1] < min_x_dim:
-            min_x_dim = img.shape[1]
-        if img.shape[0] < min_y_dim:
-            min_y_dim = img.shape[0]
         # Plot the image.
         plot_images(img)
         # Keep track of the class labels and the images.
         class_labels.append(directory.name)
         class_images.append(img)
     list_cnt_images.append(cnt_images)
-    dimension_array.append([array_x_dim, array_y_dim])
-    return dimension_array, list_cnt_images, class_labels, class_images, min_x_dim, min_y_dim
+    return list_cnt_images, class_labels, class_images
 
 
 # Plot the amount of images per class.
@@ -74,30 +62,27 @@ def plot_dimension_of_images(dimension_array, subdir_names):
     return
 
 
+def read_images(subdir, labels, images, list_cnt_images):
+    # Loop over the subdirectories.
+    for directory in subdir:
+        list_cnt_images, class_labels, class_images = \
+            process_data(directory, list_cnt_images)
+        labels += class_labels
+        images += class_images
+    return images, labels, list_cnt_images
+
+
 # Data analysis.
 def perform_data_analysis():
     # Select the path of the image folder and its subdirectories.
-    image_folder = Path("data")
+    image_path_train = Path("Data/content_images/train")
     # Determine the subdirectories and their names.
-    subdir = [x for x in image_folder.iterdir() if x.is_dir()]
-    subdir_names = [x.name for x in image_folder.iterdir() if x.is_dir()]
-    # Initialise some variables.
-    list_cnt_images = []
-    dimension_array = []
-    labels = []
-    images = []
-    min_x = np.inf
-    min_y = np.inf
-    # Loop over the subdirectories.
-    for directory in subdir:
-        dimension_array, list_cnt_images, class_labels, class_images, min_x_dim, min_y_dim = \
-            determine_dimensions(directory, dimension_array, list_cnt_images)
-        if min_x_dim < min_x:
-            min_x = min_x_dim
-        if min_y_dim < min_y:
-            min_y = min_y_dim
-        labels += class_labels
-        images += class_images
+    subdir_train = [x for x in image_path_train.iterdir() if x.is_dir()]
+    print(subdir_train)
+    subdir_names = [x.name for x in image_path_train.iterdir() if x.is_dir()]
+    images_train, labels_train, list_cnt_images = read_images(subdir_train, [], [], [])
+    # images_validation, labels_validation, list_cnt_images_validation = read_images(subdir_validation, [], [], [])
+    # list_cnt_images = np.add(list_cnt_images_train, list_cnt_images_validation)
+    print(list_cnt_images)
     plot_images_per_class(subdir_names, list_cnt_images)
-    plot_dimension_of_images(dimension_array, subdir_names)
-    return labels, images, min_x, min_y
+    return images_train, labels_train

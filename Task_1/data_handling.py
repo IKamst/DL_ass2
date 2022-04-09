@@ -32,9 +32,10 @@ def get_style_image():
     # print(style_image)
     return style_image
 
+
 def create_train_test_ds():
     # TODO change seed
-    data_dir = Path("data")
+    data_dir = Path("Data/content_images/train")
     train_ds = tf.keras.utils.image_dataset_from_directory(
         data_dir,
         validation_split=0.2,
@@ -51,10 +52,10 @@ def create_train_test_ds():
         batch_size=32,
         image_size=(224, 224))
 
-    for images, labels in test_ds.take(1):
-        content_image = images[0]
-        plt.imshow(content_image.numpy().astype("uint8"))
-        plt.show()
+    # for images, labels in test_ds.take(1):
+    #     content_image = images[0]
+    #     plt.imshow(content_image.numpy().astype("uint8"))
+    #     plt.show()
 
     return train_ds, test_ds
 
