@@ -33,6 +33,10 @@ def load_data():
 def get_style_image():
     style_path = tf.keras.utils.get_file('starry.jpg',
                                          'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg')
+
+    style_path = tf.keras.utils.get_file('kandinsky5.jpg',
+                                         'https://storage.googleapis.com/download.tensorflow.org/example_images/Vassily_Kandinsky%2C_1913_-_Composition_7.jpg')
+
     style_image = load_img(style_path)
     # print("Style Images")
     # print(style_image)

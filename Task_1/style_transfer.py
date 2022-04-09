@@ -188,7 +188,9 @@ def train_style_transfer(image, extractor, opt, num_style_layers, num_content_la
 
 
 def load_image(image):
-    image = tf.io.read_file("data/accordion/image_0001.jpg")
+    content_path = tf.keras.utils.get_file('YellowLabradorLooking_new.jpg',
+                                           'https://storage.googleapis.com/download.tensorflow.org/example_images/YellowLabradorLooking_new.jpg')
+    image = tf.io.read_file(content_path)
     img = tf.image.decode_image(image, channels=3)
     img = tf.image.convert_image_dtype(img, tf.float32)
     img = tf.image.resize(img, [224, 224])
