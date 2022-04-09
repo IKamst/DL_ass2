@@ -49,7 +49,7 @@ class StyleContentModel(tf.keras.models.Model):
 # Create the content and style layers using the approach defined in the paper by Gatys et al.
 # The intermediate layers of the VGG19 network represent the style and content.
 def create_content_style_layers():
-    content_layers = ['block5_conv2']
+    content_layers = ['block4_conv2']
 
     style_layers = ['block1_conv1',
                     'block2_conv1',
@@ -73,12 +73,12 @@ def make_vgg_layers(layer_names, train_ds, test_ds):
 
     # Create new layers that can be trained, so the model can classify images from our dataset
     FC_layer_Flatten = tf.keras.layers.Flatten()(vgg_base_model.output)  # Line 5
-    Dense = tf.keras.layers.Dense(units=1000, activation='relu')(FC_layer_Flatten)  # Line 6
-    Dense = tf.keras.layers.Dense(units=800, activation='relu')(Dense)  # Line 7
-    Dense = tf.keras.layers.Dense(units=400, activation='relu')(Dense)  # Line 8
-    Dense = tf.keras.layers.Dense(units=200, activation='relu')(Dense)  # Line 9
-    Dense = tf.keras.layers.Dense(units=100, activation='relu')(Dense)  # Line 10
-    Classification = tf.keras.layers.Dense(units=N_CLASSES, activation='softmax')(Dense)  # Line 11
+    # Dense = tf.keras.layers.Dense(units=1000, activation='relu')(FC_layer_Flatten)  # Line 6
+    # Dense = tf.keras.layers.Dense(units=800, activation='relu')(Dense)  # Line 7
+    # Dense = tf.keras.layers.Dense(units=400, activation='relu')(Dense)  # Line 8
+    # Dense = tf.keras.layers.Dense(units=200, activation='relu')(Dense)  # Line 9
+    # Dense = tf.keras.layers.Dense(units=100, activation='relu')(Dense)  # Line 10
+    Classification = tf.keras.layers.Dense(units=N_CLASSES, activation='softmax')(FC_layer_Flatten)  # Line 11
 
     model = tf.keras.Model(inputs=image_input, outputs=Classification)  # Line 12
     model.summary()
