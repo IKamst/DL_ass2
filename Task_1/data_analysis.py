@@ -8,34 +8,39 @@ from pathlib import Path
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
+import os
+import tensorflow as tf
 
-
-# Plot the images.
-def plot_images(image):
-    show_images = False
-    if show_images:
-        cv2.imshow('image', image)
-    return
+# Load the image in the correct way, so it can be used as input for the model.
+def load_image(content_path):
+    # content_path = tf.keras.utils.get_file('YellowLabradorLooking_new.jpg',
+    #                                       'https://storage.googleapis.com/download.tensorflow.org/example_images/YellowLabradorLooking_new.jpg')
+    img = tf.io.read_file(content_path)
+    img = tf.image.decode_image(img, channels=3)
+    img = tf.image.convert_image_dtype(img, tf.float32)
+    img = tf.image.resize(img, [224, 224])
+    img = img[tf.newaxis, :]
+    return img
 
 
 # Keep track of the images and their labels.
 def process_data(directory, list_cnt_images):
     cnt_images = 0
-    names_images = [x for x in directory.iterdir()]
+    # names_images = [x for x in directory.iterdir()]
     class_labels = []
     class_images = []
     # Loop over all images.
-    for name in names_images:
+    for file_name in os.listdir(directory):
+        name = os.path.join(directory, file_name)
         # Keep track of the amount of images.
         cnt_images = cnt_images + 1
-        # Read the image.
-        img = cv2.imread(str(name))
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        # Plot the image.
-        plot_images(img)
+        img = load_image(name)
+        print(img)
+        tensor_image = tf.Variable(img)
+        print(tensor_image)
         # Keep track of the class labels and the images.
         class_labels.append(directory.name)
-        class_images.append(img)
+        class_images.append(tensor_image)
     list_cnt_images.append(cnt_images)
     return list_cnt_images, class_labels, class_images
 
@@ -81,8 +86,6 @@ def perform_data_analysis():
     print(subdir_train)
     subdir_names = [x.name for x in image_path_train.iterdir() if x.is_dir()]
     images_train, labels_train, list_cnt_images = read_images(subdir_train, [], [], [])
-    # images_validation, labels_validation, list_cnt_images_validation = read_images(subdir_validation, [], [], [])
-    # list_cnt_images = np.add(list_cnt_images_train, list_cnt_images_validation)
     print(list_cnt_images)
     plot_images_per_class(subdir_names, list_cnt_images)
     return images_train, labels_train

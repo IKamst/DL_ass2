@@ -17,9 +17,9 @@ RUN_NUMBER = 1
 # Make a model that returns the style and content tensors.
 class StyleContentModel(tf.keras.models.Model):
     # Initialise the model.
-    def __init__(self, style_layers, content_layers, train_ds, validation_ds):
+    def __init__(self, style_layers, content_layers, images_train, labels_train):
         super(StyleContentModel, self).__init__()
-        self.vgg = make_vgg_layers(style_layers + content_layers, train_ds,validation_ds)
+        self.vgg = make_vgg_layers(style_layers + content_layers, images_train, labels_train)
         self.style_layers = style_layers
         self.content_layers = content_layers
         self.num_style_layers = len(style_layers)
@@ -66,7 +66,7 @@ def create_content_style_layers():
 
 
 # Build a VGG19 model and return a list of intermediate layer outputs.
-def make_vgg_layers(layer_names, train_ds, validation_ds):
+def make_vgg_layers(layer_names, images_train, labels_train):
     # If weights is set to 'imagenet', then a pretrained VGG is loaded.
     # If weights is set to NONE, then random weights are used.
     image_input = tf.keras.layers.Input(shape=(224, 224, 3))
@@ -77,7 +77,7 @@ def make_vgg_layers(layer_names, train_ds, validation_ds):
     FC_layer_Flatten = tf.keras.layers.Flatten()(vgg_base_model.output)
     Classification = tf.keras.layers.Dense(units=N_CLASSES, activation='softmax')(FC_layer_Flatten)
 
-    model = tf.keras.Model(inputs=image_input, outputs=Classification)  # Line 12
+    model = tf.keras.Model(inputs=image_input, outputs=Classification)
     model.summary()
 
     # Train the model
@@ -85,7 +85,7 @@ def make_vgg_layers(layer_names, train_ds, validation_ds):
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=base_learning_rate),
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(), metrics=['accuracy'])
 
-    history = model.fit(train_ds, epochs=1, batch_size=32, validation=validation_ds)
+    history = model.fit(images_train, labels_train, epochs=1, batch_size=32, validation_split=0.2)
     print(history)
 
     outputs = [model.get_layer(name).output for name in layer_names]
@@ -220,22 +220,22 @@ def transfer_style(extractor, style_image, content_image, num_content_layers, nu
 
 
 # Main function. This calls all other functions that are used during the style transfer process.
-def main_style_transfer(train_ds, validation_ds, style_image):
-    # # Make a directory to save the images.
-    # path = 'saved_images/' + str(RUN_NUMBER)
-    # try:
-    #     os.makedirs(path)
-    # except OSError:
-    #     print("Directory already exists")
-    # # Create content and style layers.
-    # content_layers, style_layers, num_content_layers, num_style_layers = create_content_style_layers()
-    # # Create the model.
-    # extractor = StyleContentModel(style_layers, content_layers, train_ds, validation_ds)
+def main_style_transfer(images_train, labels_train):
+    # Make a directory to save the images.
+    path = 'saved_images/' + str(RUN_NUMBER)
+    try:
+        os.makedirs(path)
+    except OSError:
+        print("Directory already exists")
+    # Create content and style layers.
+    content_layers, style_layers, num_content_layers, num_style_layers = create_content_style_layers()
+    # Create the model.
+    extractor = StyleContentModel(style_layers, content_layers, images_train, labels_train)
 
     # Loop over images of the test set, so we run style transfer using the same trained CNN for all test data.
     directory_test = "Data/content_images/test"
-    for filename in os.listdir(directory):
-        name = os.path.join(directory, filename)
+    for filename in os.listdir(directory_test):
+        name = os.path.join(directory_test, filename)
         print(name)
         content_image = load_image(name)
         imshow(content_image, 0)
@@ -243,7 +243,7 @@ def main_style_transfer(train_ds, validation_ds, style_image):
         # For that test image, run style transfer with all style images.
         directory_style = "Data/style_images"
         for stylename in os.listdir(directory_style):
-            name = os.path.join(directory, stylename)
+            name = os.path.join(directory_style, stylename)
             print(name)
             style_image = load_image(name)
             transfer_style(extractor, style_image, content_image, num_content_layers, num_style_layers)
