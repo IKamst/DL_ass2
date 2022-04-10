@@ -78,7 +78,8 @@ def clip_0_1(image):
     return tf.clip_by_value(image, clip_value_min=0.0, clip_value_max=1.0)
 
 # Determine the loss, which is a linear combination of the style and content loss
-def style_content_loss(outputs, num_style_layers, num_content_layers, style_targets, content_targets, content_name, style_name, content_loss_array, style_loss_array):
+def style_content_loss(outputs, num_style_layers, num_content_layers, style_targets, content_targets,
+                       content_loss_array, style_loss_array):
 
     # Set weights that change the influence of the style and content in the updated image
     style_weight = 0.5
@@ -104,10 +105,13 @@ def style_content_loss(outputs, num_style_layers, num_content_layers, style_targ
     return loss, content_loss_array, style_loss_array
 
 # Update the image using gradient descent, the content loss and the style loss
-def train_step(image, style_transfer_model, opt, num_style_layers, num_content_layers, style_targets, content_targets, content_name, style_name, content_loss_array, style_loss_array):
+def train_step(image, style_transfer_model, opt, num_style_layers, num_content_layers, style_targets, content_targets,
+               content_name, style_name, content_loss_array, style_loss_array):
     with tf.GradientTape() as tape:
         outputs = style_transfer_model(image)
-        loss, content_loss_array, style_loss_array = style_content_loss(outputs, num_style_layers, num_content_layers, style_targets, content_targets, content_name, style_name, content_loss_array, style_loss_array)
+        loss, content_loss_array, style_loss_array = style_content_loss(outputs, num_style_layers, num_content_layers,
+                                                                        style_targets, content_targets, content_name,
+                                                                        style_name, content_loss_array, style_loss_array)
 
     grad = tape.gradient(loss, image)
     opt.apply_gradients([(grad, image)])
@@ -138,8 +142,8 @@ def imshow(image, step):
     return
 
 # Train for the style transfer to generate an image
-def train_style_transfer(image, style_transfer_model, opt, num_style_layers, num_content_layers, style_targets, content_targets,
-                         epochs, steps_per_epoch, content_name, style_name):
+def train_style_transfer(image, style_transfer_model, opt, num_style_layers, num_content_layers, style_targets,
+                         content_targets, epochs, steps_per_epoch, content_name, style_name):
     step = 0
 
     content_loss_array = []
@@ -149,8 +153,9 @@ def train_style_transfer(image, style_transfer_model, opt, num_style_layers, num
     for _ in range(epochs):
         for _ in range(steps_per_epoch):
             step += 1
-            image, content_loss_array, style_loss_array = train_step(image, style_transfer_model, opt, num_style_layers, num_content_layers, style_targets,
-                               content_targets, content_name, style_name, content_loss_array, style_loss_array)
+            image, content_loss_array, style_loss_array = \
+                train_step(image, style_transfer_model, opt, num_style_layers, num_content_layers, style_targets,
+                           content_targets, content_name, style_name, content_loss_array, style_loss_array)
             print(".", end='', flush=True)
         # Reformat the image, so it can be shown
         image_show = image[0, :, :, :]
@@ -180,7 +185,8 @@ def load_image(content_path):
     return img
 
 # Initialise some variables for style transfer and then train the style transfer model.
-def transfer_style(style_transfer_model, style_image, content_image, num_content_layers, num_style_layers, content_name, style_name):
+def transfer_style(style_transfer_model, style_image, content_image, num_content_layers, num_style_layers, content_name,
+                   style_name):
 
     # Set style and content targets.
     style_targets = style_transfer_model(style_image)['style']
@@ -216,6 +222,7 @@ def test_style_transfer(style_transfer_model, num_content_layers, num_style_laye
             name = re.split('.jpg', name)[0]
             transfer_style(style_transfer_model, style_image, content_image, num_content_layers, num_style_layers,
                            filename, name)
+    return
 
 # Perform style transfer by first training a CNN model and then using the output of its layers to extract style and
 # content. Then, mix the style and content to generate a new image.

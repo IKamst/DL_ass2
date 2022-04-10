@@ -2,10 +2,82 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9453d7da-fca2-46ea-8907-71890e89259a" name="Changes" comment="Version for testing">
-      <change beforePath="$PROJECT_DIR$/Task_1/Data/style_images/Edgar_Degas_410.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Task_1/Data/style_images/Edvard_Munch_3.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Task_1/Data/style_images/Vincent_van_Gogh_10.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Task_1/Data/style_images/William_Turner_1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/Data/style_images_old/Edgar_Degas_410.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/Data/style_images_old/Edvard_Munch_3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/Data/style_images_old/Vincent_van_Gogh_10.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/Data/style_images_old/William_Turner_1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_airplane_0043_Leonardo_da_Vinci_46.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_airplane_0043_Pablo_Picasso_165.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_airplane_0043_Paul_Cezanne_24.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_airplane_0043_William_Turner_18.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_airplane_0043_airplane_0043.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_car_0913_Leonardo_da_Vinci_46.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_car_0913_Pablo_Picasso_165.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_car_0913_Paul_Cezanne_24.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_car_0913_William_Turner_18.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_cat_0833_Leonardo_da_Vinci_46.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_cat_0833_Pablo_Picasso_165.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_cat_0833_Paul_Cezanne_24.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_cat_0833_William_Turner_18.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_dog_0668_Leonardo_da_Vinci_46.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_dog_0668_Pablo_Picasso_165.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_dog_0668_Paul_Cezanne_24.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_dog_0668_William_Turner_18.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_flower_0801_Leonardo_da_Vinci_46.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_flower_0801_Pablo_Picasso_165.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_flower_0801_Paul_Cezanne_24.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_flower_0801_William_Turner_18.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_fruit_0953_Leonardo_da_Vinci_46.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_fruit_0953_Pablo_Picasso_165.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_fruit_0953_Paul_Cezanne_24.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_fruit_0953_William_Turner_18.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_motorbike_0231_Leonardo_da_Vinci_46.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_motorbike_0231_Pablo_Picasso_165.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_motorbike_0231_Paul_Cezanne_24.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/content_loss_motorbike_0231_William_Turner_18.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_airplane_0043_Leonardo_da_Vinci_46.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_airplane_0043_Pablo_Picasso_165.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_airplane_0043_Paul_Cezanne_24.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_airplane_0043_William_Turner_18.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_car_0913_Leonardo_da_Vinci_46.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_car_0913_Pablo_Picasso_165.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_car_0913_Paul_Cezanne_24.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_car_0913_William_Turner_18.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_cat_0833_Leonardo_da_Vinci_46.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_cat_0833_Pablo_Picasso_165.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_cat_0833_Paul_Cezanne_24.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_cat_0833_William_Turner_18.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_dog_0668_Leonardo_da_Vinci_46.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_dog_0668_Pablo_Picasso_165.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_dog_0668_Paul_Cezanne_24.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_dog_0668_William_Turner_18.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_flower_0801_Leonardo_da_Vinci_46.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_flower_0801_Pablo_Picasso_165.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_flower_0801_Paul_Cezanne_24.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_flower_0801_William_Turner_18.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_fruit_0953_Leonardo_da_Vinci_46.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_fruit_0953_Pablo_Picasso_165.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_fruit_0953_Paul_Cezanne_24.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_fruit_0953_William_Turner_18.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_motorbike_0231_Leonardo_da_Vinci_46.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_motorbike_0231_Pablo_Picasso_165.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_motorbike_0231_Paul_Cezanne_24.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/1/style_loss_motorbike_0231_William_Turner_18.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/2/content_loss_airplane_0043_Leonardo_da_Vinci_46.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/2/content_loss_airplane_0043_Pablo_Picasso_165.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/2/content_loss_airplane_0043_Paul_Cezanne_24.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/2/content_loss_airplane_0043_William_Turner_18.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/2/style_loss_airplane_0043_Leonardo_da_Vinci_46.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/2/style_loss_airplane_0043_Pablo_Picasso_165.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/2/style_loss_airplane_0043_Paul_Cezanne_24.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss/2/style_loss_airplane_0043_William_Turner_18.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss_plot.png" beforeDir="false" afterPath="$PROJECT_DIR$/Task_1/loss/loss_plot.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/loss_plot_pretrained.png" beforeDir="false" afterPath="$PROJECT_DIR$/Task_1/loss/loss_plot_pretrained.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/main1.py" beforeDir="false" afterPath="$PROJECT_DIR$/Task_1/main1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/python_batch.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/style_transfer.py" beforeDir="false" afterPath="$PROJECT_DIR$/Task_1/style_transfer.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,10 +108,12 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/Task_1/loss" />
     <property name="settings.editor.selected.configurable" value="configurable.group.appearance" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Task_1/loss" />
       <recent name="$PROJECT_DIR$/Task_1/Data" />
     </key>
   </component>
