@@ -119,24 +119,13 @@ def style_content_loss(outputs, num_style_layers, num_content_layers, style_targ
     style_loss = tf.add_n([tf.reduce_mean((style_outputs[name]-style_targets[name])**2)
                            for name in style_outputs.keys()])
     style_loss *= style_weight / num_style_layers
-    style_loss_save = [style_loss.numpy()]
-    path = 'loss/' + str(RUN_NUMBER) + "/"
-    try:
-        os.makedirs(path)
-    except OSError:
-        print("Directory already exists")
-    csv_file = open(path + "style_loss_" + content_name + "_" + style_name + ".csv", 'ab')
-    np.savetxt(csv_file, style_loss_save, delimiter=",")
-    csv_file.close
+    style_loss_array.append(style_loss.numpy())
     content_loss = tf.add_n([tf.reduce_mean((content_outputs[name]-content_targets[name])**2)
                              for name in content_outputs.keys()])
     content_loss *= content_weight / num_content_layers
-    content_loss_save = [content_loss.numpy()]
-    csv_file_content = open(path + "content_loss_" + content_name + "_" + style_name + ".csv", 'ab')
-    np.savetxt(csv_file_content, content_loss_save, delimiter=",")
-    csv_file_content.close
+    content_loss_array.append(content_loss.numpy())
     loss = style_loss + content_loss
-    return loss
+    return loss, content_loss_array, style_loss_array
 
 
 # Update the image using gradient descent with loss.
@@ -144,12 +133,12 @@ def style_content_loss(outputs, num_style_layers, num_content_layers, style_targ
 def train_step(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets, content_name, style_name, content_loss_array, style_loss_array):
     with tf.GradientTape() as tape:
         outputs = extractor(image)
-        loss = style_content_loss(outputs, num_style_layers, num_content_layers, style_targets, content_targets, content_name, style_name, content_loss_array, style_loss_array)
+        loss, content_loss_array, style_loss_array = style_content_loss(outputs, num_style_layers, num_content_layers, style_targets, content_targets, content_name, style_name, content_loss_array, style_loss_array)
 
     grad = tape.gradient(loss, image)
     opt.apply_gradients([(grad, image)])
     image.assign(clip_0_1(image))
-    return image
+    return image, content_loss_array, style_loss_array
 
 
 # Create an image from the tensor.
@@ -188,7 +177,7 @@ def train_style_transfer(image, extractor, opt, num_style_layers, num_content_la
     for _ in range(epochs):
         for _ in range(steps_per_epoch):
             step += 1
-            image = train_step(image, extractor, opt, num_style_layers, num_content_layers, style_targets,
+            image, content_loss_array, style_loss_array = train_step(image, extractor, opt, num_style_layers, num_content_layers, style_targets,
                                content_targets, content_name, style_name, content_loss_array, style_loss_array)
             print(".", end='', flush=True)
         # Reformat the image, so it can be shown.
@@ -198,6 +187,17 @@ def train_style_transfer(image, extractor, opt, num_style_layers, num_content_la
         plt.savefig(path + '/' + content_name + style_name + str(step))
         plt.show()
         print("Train step: {}".format(step))
+        print(content_loss_array)
+        print(style_loss_array)
+
+    path = 'loss/' + str(RUN_NUMBER) + "/"
+    try:
+        os.makedirs(path)
+    except OSError:
+        print("Directory already exists")
+
+    np.savetxt(path + "content_loss_" + content_name + "_" + style_name + ".csv", content_loss_array, delimiter=",")
+    np.savetxt(path + "style_loss_" + content_name + "_" + style_name + ".csv", style_loss_array, delimiter=",")
     return
 
 
