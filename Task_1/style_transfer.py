@@ -12,7 +12,7 @@ from pathlib import Path
 import re
 
 N_CLASSES = 8
-RUN_NUMBER = 2
+RUN_NUMBER = 4
 
 # Make a model that returns the style and content tensors.
 class StyleContentModel(tf.keras.models.Model):
@@ -70,7 +70,7 @@ def make_vgg_layers(layer_names, train_ds, validation_ds):
     # If weights is set to 'imagenet', then a pretrained VGG is loaded.
     # If weights is set to NONE, then random weights are used.
     image_input = tf.keras.layers.Input(shape=(224, 224, 3))
-    vgg_base_model = tf.keras.applications.VGG19(include_top=False, weights='imagenet', input_tensor=image_input)
+    vgg_base_model = tf.keras.applications.VGG19(include_top=False, weights=None, input_tensor=image_input)
     vgg_base_model.summary()
 
     # Create new layers, so the model can train and classify images from our dataset
@@ -85,8 +85,8 @@ def make_vgg_layers(layer_names, train_ds, validation_ds):
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=base_learning_rate),
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(), metrics=['accuracy'])
 
-    # history = model.fit(train_ds, epochs=5, batch_size=32, validation_data=validation_ds)
-    # print(history)
+    history = model.fit(train_ds, epochs=10, batch_size=32, validation_data=validation_ds)
+    print(history)
 
     outputs = [model.get_layer(name).output for name in layer_names]
     model = tf.keras.Model([model.input], outputs)
@@ -110,7 +110,7 @@ def clip_0_1(image):
 # Determine the loss, which is a linear combination of the style and content loss.
 def style_content_loss(outputs, num_style_layers, num_content_layers, style_targets, content_targets, content_name, style_name, content_loss_array, style_loss_array):
     # Set weights that change the influence of the style and content in the updated image.
-    style_weight = 1e-1
+    style_weight = 0.5
     content_weight = 1e4
     # Get the current outputs for style and content.
     style_outputs = outputs['style']
@@ -157,7 +157,7 @@ def imshow(image, step, title=None):
         image = tf.squeeze(image, axis=0)
 
     plt.imshow(image)
-    plt.show()
+    # plt.show()
     path = 'saved_images/' + str(RUN_NUMBER)
     plt.savefig(path + '/' + str(step))
     if title:
@@ -185,10 +185,8 @@ def train_style_transfer(image, extractor, opt, num_style_layers, num_content_la
         plt.imshow(tensor_to_image(image_show))
         path = 'saved_images/' + str(RUN_NUMBER)
         plt.savefig(path + '/' + content_name + style_name + str(step))
-        plt.show()
+        # plt.show()
         print("Train step: {}".format(step))
-        print(content_loss_array)
-        print(style_loss_array)
 
     path = 'loss/' + str(RUN_NUMBER) + "/"
     try:
@@ -247,7 +245,6 @@ def main_style_transfer(train_ds, validation_ds):
     directory_test = "Data/content_images/test"
     for filename in os.listdir(directory_test):
         content_name = os.path.join(directory_test, filename)
-        print(content_name)
         content_image = load_image(content_name)
         imshow(content_image, 0)
         content_image = tf.Variable(content_image)
@@ -256,7 +253,6 @@ def main_style_transfer(train_ds, validation_ds):
         directory_style = "Data/style_images"
         for name in os.listdir(directory_style):
             style_name = os.path.join(directory_style, name)
-            print(style_name)
             style_image = load_image(style_name)
             imshow(style_image, 0)
             filename = re.split('.jpg', filename)[0]
