@@ -4,6 +4,7 @@
     <list default="true" id="9453d7da-fca2-46ea-8907-71890e89259a" name="Changes" comment="Loops over style and test data">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Task_1/data_analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/Task_1/data_analysis.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Task_1/data_handling.py" beforeDir="false" afterPath="$PROJECT_DIR$/Task_1/data_handling.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Task_1/main1.py" beforeDir="false" afterPath="$PROJECT_DIR$/Task_1/main1.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Task_1/style_transfer.py" beforeDir="false" afterPath="$PROJECT_DIR$/Task_1/style_transfer.py" afterDir="false" />
     </list>
