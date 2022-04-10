@@ -12,8 +12,7 @@ from pathlib import Path
 import re
 
 N_CLASSES = 8
-RUN_NUMBER = 1
-
+RUN_NUMBER = 2
 
 # Make a model that returns the style and content tensors.
 class StyleContentModel(tf.keras.models.Model):
@@ -86,8 +85,8 @@ def make_vgg_layers(layer_names, train_ds, validation_ds):
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=base_learning_rate),
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(), metrics=['accuracy'])
 
-    history = model.fit(train_ds, epochs=5, batch_size=32, validation_data=validation_ds)
-    print(history)
+    # history = model.fit(train_ds, epochs=5, batch_size=32, validation_data=validation_ds)
+    # print(history)
 
     outputs = [model.get_layer(name).output for name in layer_names]
     model = tf.keras.Model([model.input], outputs)
@@ -109,9 +108,9 @@ def clip_0_1(image):
 
 
 # Determine the loss, which is a linear combination of the style and content loss.
-def style_content_loss(outputs, num_style_layers, num_content_layers, style_targets, content_targets):
+def style_content_loss(outputs, num_style_layers, num_content_layers, style_targets, content_targets, content_name, style_name, content_loss_array, style_loss_array):
     # Set weights that change the influence of the style and content in the updated image.
-    style_weight = 1e-2
+    style_weight = 1e-1
     content_weight = 1e4
     # Get the current outputs for style and content.
     style_outputs = outputs['style']
@@ -120,26 +119,32 @@ def style_content_loss(outputs, num_style_layers, num_content_layers, style_targ
     style_loss = tf.add_n([tf.reduce_mean((style_outputs[name]-style_targets[name])**2)
                            for name in style_outputs.keys()])
     style_loss *= style_weight / num_style_layers
-
+    style_loss_save = [style_loss.numpy()]
+    path = 'loss/' + str(RUN_NUMBER) + "/"
+    try:
+        os.makedirs(path)
+    except OSError:
+        print("Directory already exists")
+    csv_file = open(path + "style_loss_" + content_name + "_" + style_name + ".csv", 'ab')
+    np.savetxt(csv_file, style_loss_save, delimiter=",")
+    csv_file.close
     content_loss = tf.add_n([tf.reduce_mean((content_outputs[name]-content_targets[name])**2)
                              for name in content_outputs.keys()])
     content_loss *= content_weight / num_content_layers
-    print("STYLE LOSS")
-    print(style_loss)
-    print("CONTENT LOSS")
-    print(content_loss)
+    content_loss_save = [content_loss.numpy()]
+    csv_file_content = open(path + "content_loss_" + content_name + "_" + style_name + ".csv", 'ab')
+    np.savetxt(csv_file_content, content_loss_save, delimiter=",")
+    csv_file_content.close
     loss = style_loss + content_loss
-    print("TOTAL LOSS")
-    print(loss)
     return loss
 
 
 # Update the image using gradient descent with loss.
 # @tf.function()
-def train_step(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets):
+def train_step(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets, content_name, style_name, content_loss_array, style_loss_array):
     with tf.GradientTape() as tape:
         outputs = extractor(image)
-        loss = style_content_loss(outputs, num_style_layers, num_content_layers, style_targets, content_targets)
+        loss = style_content_loss(outputs, num_style_layers, num_content_layers, style_targets, content_targets, content_name, style_name, content_loss_array, style_loss_array)
 
     grad = tape.gradient(loss, image)
     opt.apply_gradients([(grad, image)])
@@ -176,18 +181,20 @@ def train_style_transfer(image, extractor, opt, num_style_layers, num_content_la
                          epochs, steps_per_epoch, content_name, style_name):
     step = 0
     # Train the model using gradient descent for a certain amount of epochs.
+
+    content_loss_array = []
+    style_loss_array = []
+
     for _ in range(epochs):
         for _ in range(steps_per_epoch):
             step += 1
             image = train_step(image, extractor, opt, num_style_layers, num_content_layers, style_targets,
-                               content_targets)
+                               content_targets, content_name, style_name, content_loss_array, style_loss_array)
             print(".", end='', flush=True)
         # Reformat the image, so it can be shown.
         image_show = image[0, :, :, :]
         plt.imshow(tensor_to_image(image_show))
         path = 'saved_images/' + str(RUN_NUMBER)
-        content_name = re.split('.jpg', content_name)[0]
-        style_name = re.split('.jpg', style_name)[0]
         plt.savefig(path + '/' + content_name + style_name + str(step))
         plt.show()
         print("Train step: {}".format(step))
@@ -243,6 +250,7 @@ def main_style_transfer(train_ds, validation_ds):
         print(content_name)
         content_image = load_image(content_name)
         imshow(content_image, 0)
+        content_image = tf.Variable(content_image)
 
         # For that test image, run style transfer with all style images.
         directory_style = "Data/style_images"
@@ -251,5 +259,7 @@ def main_style_transfer(train_ds, validation_ds):
             print(style_name)
             style_image = load_image(style_name)
             imshow(style_image, 0)
+            filename = re.split('.jpg', filename)[0]
+            name = re.split('.jpg', name)[0]
             transfer_style(extractor, style_image, content_image, num_content_layers, num_style_layers, filename, name)
     return
