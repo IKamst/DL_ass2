@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9453d7da-fca2-46ea-8907-71890e89259a" name="Changes" comment="Loops over style and test data">
+    <list default="true" id="9453d7da-fca2-46ea-8907-71890e89259a" name="Changes" comment="Working version with dataset_from_directory">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Task_1/data_analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/Task_1/data_analysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Task_1/data_handling.py" beforeDir="false" afterPath="$PROJECT_DIR$/Task_1/data_handling.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Task_1/main1.py" beforeDir="false" afterPath="$PROJECT_DIR$/Task_1/main1.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Task_1/style_transfer.py" beforeDir="false" afterPath="$PROJECT_DIR$/Task_1/style_transfer.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -137,7 +134,14 @@
       <option name="project" value="LOCAL" />
       <updated>1649540857220</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Working version with dataset_from_directory">
+      <created>1649581996243</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1649581996243</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -160,6 +164,7 @@
     <MESSAGE value="Trying to actually transfer style after training" />
     <MESSAGE value="Comments and now saves images" />
     <MESSAGE value="Loops over style and test data" />
-    <option name="LAST_COMMIT_MESSAGE" value="Loops over style and test data" />
+    <MESSAGE value="Working version with dataset_from_directory" />
+    <option name="LAST_COMMIT_MESSAGE" value="Working version with dataset_from_directory" />
   </component>
 </project>

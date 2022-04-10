@@ -9,6 +9,7 @@ from matplotlib import pyplot as plt
 import IPython.display as display
 import os
 from pathlib import Path
+import re
 
 N_CLASSES = 8
 RUN_NUMBER = 1
@@ -81,11 +82,11 @@ def make_vgg_layers(layer_names, train_ds, validation_ds):
     model.summary()
 
     # Train the model
-    base_learning_rate = 0.0001
+    base_learning_rate = 0.00001
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=base_learning_rate),
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(), metrics=['accuracy'])
 
-    history = model.fit(train_ds, epochs=1, batch_size=32, validation_data=validation_ds)
+    history = model.fit(train_ds, epochs=5, batch_size=32, validation_data=validation_ds)
     print(history)
 
     outputs = [model.get_layer(name).output for name in layer_names]
@@ -185,6 +186,8 @@ def train_style_transfer(image, extractor, opt, num_style_layers, num_content_la
         image_show = image[0, :, :, :]
         plt.imshow(tensor_to_image(image_show))
         path = 'saved_images/' + str(RUN_NUMBER)
+        content_name = re.split('.jpg', content_name)[0]
+        style_name = re.split('.jpg', style_name)[0]
         plt.savefig(path + '/' + content_name + style_name + str(step))
         plt.show()
         print("Train step: {}".format(step))
@@ -212,8 +215,8 @@ def transfer_style(extractor, style_image, content_image, num_content_layers, nu
     # tensor_to_image(image).show()
 
     opt = tf.optimizers.Adam(learning_rate=0.02, beta_1=0.99, epsilon=1e-1)
-    epochs = 1
-    steps_per_epoch = 1
+    epochs = 10
+    steps_per_epoch = 10
     train_style_transfer(image, extractor, opt, num_style_layers, num_content_layers, style_targets, content_targets,
                          epochs, steps_per_epoch, content_name, style_name)
     return
@@ -239,7 +242,7 @@ def main_style_transfer(train_ds, validation_ds):
         content_name = os.path.join(directory_test, filename)
         print(content_name)
         content_image = load_image(content_name)
-        imshow(content_image, 0, filename)
+        imshow(content_image, 0)
 
         # For that test image, run style transfer with all style images.
         directory_style = "Data/style_images"
@@ -247,6 +250,6 @@ def main_style_transfer(train_ds, validation_ds):
             style_name = os.path.join(directory_style, name)
             print(style_name)
             style_image = load_image(style_name)
-            imshow(content_image, 0, name)
-            transfer_style(extractor, style_image, content_image, num_content_layers, num_style_layers, file_name, name)
+            imshow(style_image, 0)
+            transfer_style(extractor, style_image, content_image, num_content_layers, num_style_layers, filename, name)
     return
