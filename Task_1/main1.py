@@ -10,8 +10,11 @@ import style_transfer
 import plot_results
 
 if __name__ == "__main__":
-    plot_results.make_loss_plot()
+    # Analyse the data
     images_train, labels_train = data_analysis.perform_data_analysis()
-    train_ds, test_ds = data_handling.create_train_test_ds()
-    style_image = data_handling.get_style_image()
-    style_transfer.main_style_transfer(train_ds, test_ds)
+    # Get the data and create a training set and validation set of the content images
+    train_ds, validation_ds = data_handling.create_train_validation_ds()
+    # Perform style transfer
+    style_transfer.main_style_transfer(train_ds, validation_ds)
+    # Make plots of the loss over time
+    plot_results.make_loss_plot()

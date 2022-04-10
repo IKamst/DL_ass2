@@ -14,8 +14,9 @@ import re
 N_CLASSES = 8
 RUN_NUMBER = 4
 
-# Make a model that returns the style and content tensors.
+# Make a model that returns the style and content tensors
 class StyleContentModel(tf.keras.models.Model):
+
     # Initialise the model.
     def __init__(self, style_layers, content_layers, train_ds, validation_ds):
         super(StyleContentModel, self).__init__()
@@ -62,8 +63,8 @@ def create_content_style_layers():
 
     num_content_layers = len(content_layers)
     num_style_layers = len(style_layers)
-    return content_layers, style_layers, num_content_layers, num_style_layers
 
+    return content_layers, style_layers, num_content_layers, num_style_layers
 
 # Build a VGG19 model and return a list of intermediate layer outputs.
 def make_vgg_layers(layer_names, train_ds, validation_ds):
@@ -85,8 +86,8 @@ def make_vgg_layers(layer_names, train_ds, validation_ds):
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=base_learning_rate),
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(), metrics=['accuracy'])
 
-    history = model.fit(train_ds, epochs=10, batch_size=32, validation_data=validation_ds)
-    print(history)
+    # history = model.fit(train_ds, epochs=10, batch_size=32, validation_data=validation_ds)
+    # print(history)
 
     outputs = [model.get_layer(name).output for name in layer_names]
     model = tf.keras.Model([model.input], outputs)
@@ -227,18 +228,21 @@ def transfer_style(extractor, style_image, content_image, num_content_layers, nu
     return
 
 
-# Main function. This calls all other functions that are used during the style transfer process.
+# Perform style transfer by first training a CNN model and then using the output of its layers to extract style and
+# content. Then, mix the style and content to generate a new image.
 def main_style_transfer(train_ds, validation_ds):
-    # Make a directory to save the images.
+
+    # Make a directory to save the generated images
     path = 'saved_images/' + str(RUN_NUMBER)
     try:
         os.makedirs(path)
     except OSError:
         print("Directory already exists")
 
-    # Create content and style layers.
+    # Set the layers that are used to extract the content and style from
     content_layers, style_layers, num_content_layers, num_style_layers = create_content_style_layers()
-    # Create the model.
+
+    # Create the model
     extractor = StyleContentModel(style_layers, content_layers, train_ds, validation_ds)
 
     # Loop over images of the test set, so we run style transfer using the same trained CNN for all test data.
