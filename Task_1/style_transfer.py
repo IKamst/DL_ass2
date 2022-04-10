@@ -110,8 +110,8 @@ def train_step(image, style_transfer_model, opt, num_style_layers, num_content_l
     with tf.GradientTape() as tape:
         outputs = style_transfer_model(image)
         loss, content_loss_array, style_loss_array = style_content_loss(outputs, num_style_layers, num_content_layers,
-                                                                        style_targets, content_targets, content_name,
-                                                                        style_name, content_loss_array, style_loss_array)
+                                                                        style_targets, content_targets,
+                                                                        content_loss_array, style_loss_array)
 
     grad = tape.gradient(loss, image)
     opt.apply_gradients([(grad, image)])

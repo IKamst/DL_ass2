@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9453d7da-fca2-46ea-8907-71890e89259a" name="Changes" comment="Read me file">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Task_1/requirements.txt" beforeDir="false" />
-    </list>
+    <list default="true" id="9453d7da-fca2-46ea-8907-71890e89259a" name="Changes" comment="Working on requirement.txt" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -166,7 +162,14 @@
       <option name="project" value="LOCAL" />
       <updated>1649622051050</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Working on requirement.txt">
+      <created>1649622662385</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1649622662385</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -192,6 +195,7 @@
     <MESSAGE value="Working version with dataset_from_directory" />
     <MESSAGE value="Version for testing" />
     <MESSAGE value="Read me file" />
-    <option name="LAST_COMMIT_MESSAGE" value="Read me file" />
+    <MESSAGE value="Working on requirement.txt" />
+    <option name="LAST_COMMIT_MESSAGE" value="Working on requirement.txt" />
   </component>
 </project>
